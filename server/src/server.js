@@ -1,6 +1,8 @@
 const fs = require('fs');
 const https = require('https');
 const { WebSocketServer } = require('ws');
+const crypto = require('crypto');
+
 const Room = require('./room');
 
 process.on('uncaughtException', (err) => {
@@ -36,6 +38,8 @@ class Server {
         ws.on('message', (rawdata) => this.ondata(ws, rawdata));
         ws.on('close', () => this.onclose(ws));
         ws.on('error', (err) => this.onclose(ws));
+
+        this.sendrooms(ws);
     }
 
     ondata(ws, rawdata) { //ВООБЩЕ ЛЮБОЙ ЗАПРОС ОТ ЛЮБОГО СОЕДИНЕНИЯ (ИГРОК ИЛИ НЕТ)
@@ -45,13 +49,13 @@ class Server {
 
         if(ws.roomid == null && ws.playerid == null) { //ЗАПРОС ОТ СОЕДИНЕНИЯ БЕЗ ИГРОКА НЕ В ЛОББИ
             if(type == 'MATCHMAKING') { //АВТОМАТИЧЕСКИЙ ПОДБОР (присоединяется к самой крупной или создаёт если нет)
-
+                this.matchmaking(ws, data.nickname);
             }
             if(type == 'JOINROOM') { //ПОДКЛЮЧЕНИЕ К КОНКРЕТНОЙ КОМНАТЕ
-                
+                this.joinroom(ws, data.nickname, data.roomid);
             }
             if(type == 'CREATEROOM') { //ПРИНУДИТЕЛЬНОЕ СОЗДАНИЕ КОМНАТЫ (для друзей)
-
+                this.createroom(ws, data.nickname);
             }
         } else { //ЗАПРОС ОТ ИГРОКА В ЛОББИ ИЛИ ИГРЕ
 
@@ -66,16 +70,49 @@ class Server {
         }
     }
 
-    matchmaking() {
-
+    send(ws, type, data) {
+        let jsondata = {type: type, data: data};
+        let rawdata = JSON.stringify(jsondata);
+        ws.send(rawdata);
     }
 
-    joinroom() {
-
+    sendrooms(ws) {
+        let type = 'ROOMLIST';
+        let data = this.rooms;
+        this.send(ws, type, data);
     }
 
-    createroom() {
+    matchmaking(ws, nickname) { //автоподбор лобби для входа игрока (нужно соединение и никнейм из меню)
+        let allrooms = Object.values(this.rooms);
 
+        let openrooms = allrooms.filter(r => r.state === 'LOBBY' && Object.keys(r.players).length < 10);
+
+        if(openrooms.length > 0) {
+            openrooms.sort((a, b) => Object.keys(b.players).length - Object.keys(a.players).length);
+            let targetroom = openrooms[0];
+            
+            this.joinroom(ws, nickname, targetroom.id);
+        } else {
+            this.createroom(ws, nickname);
+        }
+    }
+
+    joinroom(ws, nickname, roomid) { //общий способ подключения к конкретному лобби по ID
+        let room = this.rooms[roomid];
+
+        if(room && room.state == 'LOBBY' && Object.keys(room.players).length < 10) {
+            ws.roomid = roomid;
+            ws.playerid = crypto.randomUUID();
+
+            room.addplayer(ws, nickname);
+        }
+    }
+
+    createroom(ws, nickname) { //создание лобби
+        let roomid = crypto.randomUUID();
+        this.rooms[roomid] = new Room(roomid);
+        
+        this.joinroom(ws, nickname, roomid);
     }
 }
 
