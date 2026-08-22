@@ -1,0 +1,26 @@
+# Зависимости Node.js (Тяжелая папка, её сервер соберет сам через npm i)
+server/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Конфиденциальные данные (Локальные пароли и пути до сервера)
+.vscode/sftp.json
+.vscode/
+
+# Системные файлы SSL-сертификатов (Они должны жить только на сервере!)
+server/server.key
+server/server.cert
+*.key
+*.cert
+*.pem
+
+# Системный мусор операционных систем
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Логи и временные файлы pm2 / nodemon
+logs/
+*.log
+.nodemonignore

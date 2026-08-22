@@ -5,7 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MOBKA</title>
 </head>
+
+<style>
+html, body {
+margin: 0;
+padding: 0;
+height: 100%;
+width: 100%;
+overflow: hidden;
+background: black;
+color: white;
+font-weight: normal;
+font-family: system-ui;
+user-select: none;
+}
+</style>
+
 <body>
+    <div class="mainmenu">
+        <div class="gametitle"></div>
+
+        <div class="roomlist"></div>
+        <div class="createlobby"></div>
+
+        <div class="playerpreview"></div>
+
+        <input class="nickname">
+        <div class="matchmaking"></div>
+    </div>
+
+    <div class="lobby">
+        <div class="blueteam">
+            <div class="playerslot"></div>
+            <div class="playerslot"></div>
+            <div class="playerslot"></div>
+            <div class="playerslot"></div>
+            <div class="playerslot"></div>
+        </div>
+
+        <div class="redteam">
+            <div class="playerslot"></div>
+            <div class="playerslot"></div>
+            <div class="playerslot"></div>
+            <div class="playerslot"></div>
+            <div class="playerslot"></div>
+        </div>
+
+        <div class="startgame">В ИГРУ <span id="playervotes"></span></div>
+    </div>
+
+    <div class="gameui">
+    </div>
+
+    <canvas id="canvas"></canvas>
     
+    <script type="module" src="src/main.js"></script>
+
 </body>
+
 </html>
