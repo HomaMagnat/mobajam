@@ -4,9 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MOBKA</title>
+    
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Vollkorn:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 </head>
 
 <style>
+*{
+    outline: 1px solid red;
+}
 html, body {
 margin: 0;
 padding: 0;
@@ -16,31 +23,129 @@ overflow: hidden;
 background: black;
 color: white;
 font-weight: normal;
-font-family: system-ui;
+font-family: "Fira Sans", sans-serif;
 user-select: none;
+}
+
+.gametitle {
+position: absolute;
+top: 40px;
+right: 0;
+left: 0;
+margin: auto;
+width: 500px;
+text-align: center;
+padding: 10px;
+font-weight: bold;
+font-size: 60px;
+background: blue;
+}
+
+.roomlist {
+position: absolute;
+top: 200px;
+left: 50px;
+width: 35%;
+height: calc(100% - 480px);
+padding: 10px;
+
+}
+
+.room {
+padding: 10px;
+}
+
+.roomname {
+display: inline-block;
+padding: 5px 10px 5px 10px;
+font-size: 30px;
+width: calc(100% - 260px);
+}
+.roomplayers {
+display: inline-block;
+padding: 5px 10px 5px 10px;
+font-size: 30px;
+width: 80px;
+text-align: center;
+}
+.login {
+display: inline-block;
+padding: 5px 10px 5px 10px;
+font-size: 30px;
+width: 120px;
+text-align: center;
+}
+
+.createlobby {
+position: absolute;
+width: calc(100% - 20px);
+padding: 10px;
+text-align: center;
+bottom: -80px;
+left: 0px;
+font-size: 30px;
+}
+
+.matchmaking {
+position: absolute;
+bottom: 40px;
+right: 50px;
+font-weight: bold;
+font-size: 70px;
+padding: 5px 20px 5px 20px;
+width: 20%;
+min-width: 250px;
+text-align: center;
+}
+
+.nickname {
+position: absolute;
+bottom: 50px;
+right: 0;
+left: 0;
+margin: auto;
+font-size: 40px;
+font-family: "Fira Sans", sans-serif;
+padding: 10px 20px 10px 20px;
+width: 400px;
+text-align: center;
+}
+
+.playerpreview {
+position: absolute;
+right: 50px;
 }
 </style>
 
 <body>
     <div class="mainmenu">
-        <div class="gametitle"></div>
+        <div class="gametitle">MobaJam</div>
 
-        <div class="roomlist"></div>
-        <div class="createlobby"></div>
+        <div class="roomlist">
+            <div class="room">
+                <div class="roomname">ЛОББИ #1</div><div class="roomplayers">2/10</div><div class="login">ВОЙТИ</div>
+            </div>
+            <div class="createlobby">СОЗДАТЬ ЛОББИ</div>
+        </div>
 
-        <div class="playerpreview"></div>
+        <div class="playerpreview">ПЕРСЮК</div>
 
-        <input class="nickname">
-        <div class="matchmaking"></div>
+        <input class="nickname" placeholder="Ваш никнейм">
+        <div class="matchmaking">ИГРАТЬ</div>
     </div>
 
-    <div class="lobby">
+    <div class="lobby" style="display: none;">
         <div class="blueteam">
             <div class="playerslot"></div>
             <div class="playerslot"></div>
             <div class="playerslot"></div>
             <div class="playerslot"></div>
             <div class="playerslot"></div>
+        </div>
+
+        <div class="middledata">
+            <div class="dataline">Название лобби: <div class="thisroomname"></div></div>
+            <div class="dataline">Игроки: <div class="thisroomplayers"></div></div>
         </div>
 
         <div class="redteam">
@@ -54,10 +159,10 @@ user-select: none;
         <div class="startgame">В ИГРУ <span id="playervotes"></span></div>
     </div>
 
-    <div class="gameui">
+    <div class="gameui" style="display: none;">
     </div>
 
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" style="display: none;"></canvas>
     
     <script type="module" src="src/main.js"></script>
 
