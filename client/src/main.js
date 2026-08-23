@@ -4,9 +4,18 @@ export class Main {
             ROOMLIST: (data) => this.roomlist(data)
         };
 
-        this.connect();
+        this.ui = {
+            nickname: document.querySelector('.nickname'),
+            rooms: document.querySelector('.rooms'),
+            lobbytime: document.querySelector('.lobbytime'),
+            thisroomname: document.querySelector('.thisroomname'),
+            thisroomplayers: document.querySelector('.thisroomplayers'),
+            playervotes: document.querySelector('.playervotes')
+        };
 
         window.addEventListener('click', (e) => this.globalclick(e));
+
+        this.connect();
     }
 
     globalclick(e) {
@@ -57,7 +66,52 @@ export class Main {
     }
 
     roomlist(data) {
+        let content = '';
+        let index = 0;
+        for(const [roomid, room] of Object.entries(data)) {
+            index++;
+            content += `<div class="room"><div class="roomname">ЛОББИ #${index}</div><div class="roomplayers">${room.playersnumber}/10</div><div class="login" data-action="joinroom" data-id="${roomid}">ВОЙТИ</div></div>`;
+        }
+        this.ui.rooms.innerHTML = content;
         console.log(data);
+    }
+
+    joinroom(roomid) {
+        if(this.ui.nickname.value.trim() === '') {
+            this.nicknamewarn();
+            return;
+        }
+        let type = 'JOINROOM';
+        let data = {nickname: this.ui.nickname.value.trim(), roomid: roomid};
+        this.serversend(type, data);
+    }
+
+    createroom() {
+        if(this.ui.nickname.value.trim() === '') {
+            this.nicknamewarn();
+            return;
+        }
+        let type = 'CREATEROOM';
+        let data = {nickname: this.ui.nickname.value.trim()};
+        this.serversend(type, data);
+    }
+
+    matchmaking() {
+        if(this.ui.nickname.value.trim() === '') {
+            this.nicknamewarn();
+            return;
+        }
+        let type = 'MATCHMAKING';
+        let data = {nickname: this.ui.nickname.value.trim()};
+        this.serversend(type, data);
+    }
+
+    nicknamewarn() {
+        const input = this.ui.nickname;
+        input.classList.add('input-error');
+        setTimeout(() => {
+            input.classList.remove('input-error');
+        }, 100); 
     }
 }
 

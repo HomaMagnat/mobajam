@@ -77,27 +77,64 @@ font-family: "Fira Sans", sans-serif;
 user-select: none;
 }
 
-.gametitle {
+.gtwrapper {
 position: absolute;
 top: 40px;
 right: 0;
 left: 0;
 margin: auto;
 width: 500px;
-text-align: center;
-padding: 10px;
-font-weight: bold;
-font-size: 60px;
-background: blue;
+filter: drop-shadow(0px 0px 8px #000000a6);
 }
 
-.roomlist {
+.gametitle {
+text-align: center;
+padding: 20px;
+font-weight: bold;
+font-size: 60px;
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+text-shadow: 0 0 5px white;
+
+clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+}
+.gametitle::before {
+content: '';
+position: absolute;
+inset: 10px;
+z-index: -1;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+
+background: linear-gradient(#231479, #0a0827);
+border-top: 2px solid #3017a1;
+border-bottom: 2px solid #07031b;
+
+background: linear-gradient(#363886, #0d0e30);
+  border-top: 2px solid #40439c;
+  border-bottom: 2px solid #0c0c18;
+
+/*background: linear-gradient(var(--main), var(--main2));
+box-shadow: 0 0 30px 5px var(--innershadow) inset;*/
+}
+
+.rlwrapper {
 position: absolute;
 top: 200px;
 left: 50px;
-width: 35%;
-height: calc(100% - 480px);
+width: calc(35% + 40px);
+height: calc(100% - 440px);
+filter: drop-shadow(0px 0px 5px #00000094);
+}
+.roomlist {
+position: absolute;
+width: calc(100% - 40px);
+height: calc(100% - 40px);
 padding: 20px;
+
 clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
 
 background: linear-gradient(var(--border), var(--border2));
@@ -152,42 +189,54 @@ font-size: 25px;
 font-weight: 500;
 width: 120px;
 text-align: center;
+cursor: pointer;
 
 clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
 
 background: linear-gradient(#145779, #081c27);
 border-top: 2px solid #1771a1;
 border-bottom: 2px solid #03131b;
-box-shadow: 0 0 10px 5px #f73201;
 }
 
 .createlobby {
 position: absolute;
-width: calc(100% - 20px);
+width: 300px;
+top: calc(100% - 210px);
+left: 13%;
 padding: 10px;
 text-align: center;
-bottom: -80px;
-left: 0px;
-font-size: 30px;
+font-size: 28px;
+font-weight: 500;
+cursor: pointer;
+
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+
+background: linear-gradient(#145779, #081c27);
+border-top: 2px solid #1771a1;
+border-bottom: 2px solid #03131b;
 }
 
-.matchmaking {
+.mmwrapper {
 position: absolute;
 bottom: 40px;
 right: 50px;
 font-weight: bold;
 font-size: 70px;
-padding: 10px 20px 10px 20px;
 width: 20%;
 min-width: 250px;
 text-align: center;
+cursor: pointer;
+filter: drop-shadow(0px 0px 8px black);
+text-shadow: 0 0 5px white;
+}
+.matchmaking {
+padding: 15px 20px 15px 20px;
 
 clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
 
 background: linear-gradient(var(--border), var(--border2));
 border-top: 2px solid var(--borderlight);
 border-bottom: 2px solid var(--borderdark);
-box-shadow: 0 0 10px 5px #f73201;
 }
 .matchmaking::before {
 content: '';
@@ -201,17 +250,46 @@ border-top: 2px solid #a11717;
 border-bottom: 2px solid #1b0303;
 }
 
-.nickname {
+.nnwrapper {
 position: absolute;
 bottom: 50px;
 right: 0;
 left: 0;
+width: 420px;
 margin: auto;
+text-align: center;
+filter: drop-shadow(0px 0px 6px black);
+}
+.nicknamebox {
+padding: 10px;
+width: 400px;
+
+clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+.nickname {
+color: white;
 font-size: 40px;
 font-family: "Fira Sans", sans-serif;
-padding: 10px 20px 10px 20px;
-width: 400px;
 text-align: center;
+outline: none;
+border: none;
+padding: 10px 20px 10px 20px;
+width: 360px;
+
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+
+background: var(--main2);
+box-shadow: 0 0 30px 5px var(--innershadow) inset;
+transition: background 1s ease;
+}
+
+.input-error {
+background: #962a2a;
+transition: none !important; 
 }
 
 .playerpreview {
@@ -219,28 +297,96 @@ position: absolute;
 right: 29%;
 bottom: 40%;
 }
+
+.btwrapper {
+position: absolute;
+top: 100px;
+left: 50px;
+width: calc(30% + 40px);
+height: calc(100% - 300px);
+filter: drop-shadow(0px 0px 5px #00000094);
+}
+.blueteam {
+position: absolute;
+width: calc(100% - 40px);
+height: calc(100% - 40px);
+padding: 10px 20px 20px 20px;
+
+clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+.blueteam::before {
+content: '';
+position: absolute;
+inset: 10px;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+z-index: -1;
+
+background: linear-gradient(var(--main), var(--main2));
+box-shadow: 0 0 30px 5px var(--innershadow) inset;
+}
+
+.rtwrapper {
+position: absolute;
+top: 100px;
+right: 50px;
+width: calc(30% + 40px);
+height: calc(100% - 300px);
+filter: drop-shadow(0px 0px 5px #00000094);
+}
+.redteam {
+position: absolute;
+width: calc(100% - 40px);
+height: calc(100% - 40px);
+padding: 10px 20px 20px 20px;
+
+clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+.redteam::before {
+content: '';
+position: absolute;
+inset: 10px;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+z-index: -1;
+
+background: linear-gradient(var(--main), var(--main2));
+box-shadow: 0 0 30px 5px var(--innershadow) inset;
+}
+
+.playerslot {
+width: 100%;
+height: calc(20% - 10px);
+margin-top: 10px;
+background: red;
+}
 </style>
 
 <body>
-    <div class="mainmenu">
-        <div class="gametitle">MobaJam</div>
+    <div class="mainmenu" style="display: none;">
+        <div class="gtwrapper"><div class="gametitle">MobaJam</div></div>
 
-        <div class="roomlist">
+        <div class="rlwrapper"><div class="roomlist">
             <div class="rooms">
-            <div class="room">
-                <div class="roomname">ЛОББИ #1</div><div class="roomplayers">2/10</div><div class="login">ВОЙТИ</div>
             </div>
-            </div>
-            <div class="createlobby">СОЗДАТЬ ЛОББИ</div>
-        </div>
+        </div></div>
+
+        <div class="createlobby" data-action="createroom">СОЗДАТЬ ЛОББИ</div>
 
         <div class="playerpreview">ПЕРСЮК</div>
 
-        <input class="nickname" placeholder="Ваш никнейм">
-        <div class="matchmaking">ИГРАТЬ</div>
+        <div class="nnwrapper"><div class="nicknamebox"><input class="nickname" placeholder="Ваш никнейм" maxlength="12"></div></div>
+        <div class="mmwrapper"><div class="matchmaking" data-action="matchmaking">ИГРАТЬ</div></div>
     </div>
 
-    <div class="lobby" style="display: none;">
+    <div class="lobby">
+        <div class="btwrapper">
         <div class="blueteam">
             <div class="playerslot"></div>
             <div class="playerslot"></div>
@@ -248,12 +394,15 @@ bottom: 40%;
             <div class="playerslot"></div>
             <div class="playerslot"></div>
         </div>
+        </div>
 
         <div class="middledata">
-            <div class="dataline">Название лобби: <div class="thisroomname"></div></div>
+            <div class="lobbytime"></div>
+            <div class="dataline">Название лобби: ЛОББИ #<div class="thisroomname"></div></div>
             <div class="dataline">Игроки: <div class="thisroomplayers"></div></div>
         </div>
 
+        <div class="rtwrapper">
         <div class="redteam">
             <div class="playerslot"></div>
             <div class="playerslot"></div>
@@ -261,8 +410,9 @@ bottom: 40%;
             <div class="playerslot"></div>
             <div class="playerslot"></div>
         </div>
+        </div>
 
-        <div class="startgame">В ИГРУ <span id="playervotes"></span></div>
+        <div class="ready" data-action="ready">ГОТОВ <span id="playervotes"></span></div>
     </div>
 
     <div class="gameui" style="display: none;">

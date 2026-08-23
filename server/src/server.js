@@ -78,7 +78,11 @@ class Server {
 
     sendrooms(ws) {
         let type = 'ROOMLIST';
-        let data = this.rooms;
+        let data = {};
+        for (const [roomid, room] of Object.entries(this.rooms)) {
+            data[roomid] = {};
+            data[roomid].playersnumber = Object.keys(room.players).length;
+        }
         this.send(ws, type, data);
     }
 
