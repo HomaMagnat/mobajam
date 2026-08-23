@@ -365,6 +365,8 @@ position: relative;
 width: 100%;
 height: calc(20% - 14px);
 margin-top: 10px;
+cursor: pointer;
+opacity: 0.3;
 
 clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
 
@@ -636,6 +638,31 @@ color: #30dc22;
 text-shadow: 0 0 5px #30dc22a1;
 display: none;
 }
+
+
+.exitwrapper {
+position: absolute;
+left: 20px;
+top: 20px;
+margin: auto;
+filter: drop-shadow(0px 0px 5px #00000094);
+}
+.exit {
+position: absolute;
+padding: 20px;
+width: 20px;
+height: 20px;
+font-size: 40px;
+font-weight: bold;
+line-height: 0.5;
+cursor: pointer;
+
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
 </style>
 
 <body>
@@ -656,6 +683,7 @@ display: none;
     </div>
 
     <div class="lobby" style="display: none;">
+        <div class="exitwrapper"><div class="exit"><</div></div>
         <div class="btwrapper">
         <div class="blueteam">
             <div id="blue1" class="playerslot" data-action="selectslot" data-id="1">
@@ -701,20 +729,10 @@ display: none;
 
             <div class="cbwrapper"><div class="chatbox">
                 <div class="chat">
-                    <div class="message">ИГРОК: Сообщение</div>
-                    <div class="message">ИГРОК: Сообщение</div>
-                    <div class="message">ИГРОК: Сообщение</div>
-                    <div class="message">ИГРОК: Сообщение</div>
-                    <div class="message">ИГРОК: Сообщение</div>
-                    <div class="message">ИГРОК: СообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщение</div>
-                    <div class="message">ИГРОК: Сообщение</div>
-                    <div class="message">ИГРОК: Сообщение</div>
-                    <div class="message">ИГРОК: Сообщение</div>
-                    <div class="message">ИГРОК: Сообщение</div>
                 </div>
                 <div class="chatinput">
                     <div class="imbox"><input class="inputmessage" placeholder="Сообщение..."></div>
-                    <div class="chatsubmit" data-action="sendmessage">-></div>
+                    <div class="chatsubmit" data-action="sendmessage">></div>
                 </div>
             </div></div>
 

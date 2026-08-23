@@ -71,6 +71,14 @@ class Server {
         }
     }
 
+    playerleave(ws) {
+        if(Object.keys(this.rooms[ws.roomid].players).length < 2) { //уходит последний (в данный момент 1 он)
+            delete this.rooms[ws.roomid];
+        } else { //уходит не последний
+            this.rooms[ws.roomid].playerleave(ws);
+        }
+    }
+
     //format guest send
     send(ws, type, data) {
         let jsondata = {type: type, data: data};

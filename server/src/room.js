@@ -10,7 +10,7 @@ class Room {
         this.routes = {
             SELECTSLOT: (ws, data) => this.selectslot(ws, data),
             SENDMESSAGE: (ws, data) => this.chatmessage(ws, data),
-            READY: (ws, data) => this.playerready(ws, data)
+            READY: (ws) => this.playerready(ws)
         };
     }
 
@@ -33,6 +33,19 @@ class Room {
             if (this.players[id].ws && this.players[id].ws.readyState === 1) {
                 this.players[id].ws.send(rawdata);
             }
+        }
+    }
+
+    playerleave(ws) { //выход игрока из комнаты в любой момент
+        if(Object.keys(this.players).length < 3) { //остаётся один игрок (2 уходит)
+            //остановка отсчёта и всего матча, (если матч идёт кидает в меню, если в лобби, то нельзя начать матч, а обратный таймер отсчёта лобби (60 сек) стоит)
+        } else {
+            //тогда удаляем игрока из списка, и говорим всем об этом (обновляем в игре)
+        }
+
+        if(this.state == 'LOBBY') {
+            delete this.players[ws.playerid];
+            this.sendlobbystate();
         }
     }
 
@@ -69,15 +82,23 @@ class Room {
 
     //from client methods (get)
     selectslot(ws, data) {
-        
+        let isoccupied = Object.values(this.players).some(p => p.team === data.team && p.classid === data.classid);
+        if(!isoccupied) {
+            this.players[ws.playerid].team = data.team;
+            this.players[ws.playerid].classid = data.classid;
+        }
+
+        this.sendlobbystate();
     }
 
     chatmessage(ws, data) {
-
+        let msg = this.players[ws.playerid].nickname + ': ' + data.message;
+        this.sendchatmessage(msg); //SEND
     }
 
-    playerready(ws, data) {
-
+    playerready(ws) {
+        this.players[ws.playerid].isready = true;
+        this.sendlobbystate();
     }
 
     //to client methods (send)
@@ -103,6 +124,10 @@ class Room {
         }
 
         this.sendtoroom('UPDATELOBBYSTATE', data);
+    }
+
+    sendchatmessage(data) {
+        this.sendtoroom('CHATMESSAGE', {msg: data});
     }
 }
 

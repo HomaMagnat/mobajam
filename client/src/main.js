@@ -22,6 +22,8 @@ export class Main {
 
         window.addEventListener('click', (e) => this.globalclick(e));
 
+        this.ui.inputmessage.addEventListener('keydown', this.checkenter);
+
         this.connect();
     }
 
@@ -53,6 +55,12 @@ export class Main {
         this.ui.lobby.style.display = 'none';
         this.ui.game.style.display = 'none';
         this.ui[screen].style.display = 'block';
+    }
+
+    checkenter = (event) => {
+        if (event.key === 'Enter') {
+            this.sendmessage();
+        }
     }
 
     //ws
@@ -90,17 +98,18 @@ export class Main {
     }
 
     //from server methods (get)
+    //GUEST
     roomlist(data) {
         let content = '';
-        let index = 0;
         for(const [roomid, room] of Object.entries(data)) {
-            index++;
-            content += `<div class="room"><div class="roomname">ЛОББИ ${room.owner}</div><div class="roomplayers">${room.playersnumber}/10</div><div class="login" data-action="joinroom" data-id="${roomid}">ВОЙТИ</div></div>`;
+            this.ui.rooms.insertAdjacentHTML('beforeend', `<div class="room"><div class="roomname"></div><div class="roomplayers">${room.playersnumber}/10</div><div class="login" data-action="joinroom" data-id="${roomid}">ВОЙТИ</div></div>`);
+            let roomname = this.ui.rooms.lastElementChild.querySelector('.roomname');
+            roomname.textContent = 'ЛОББИ ' + room.owner;
         }
-        this.ui.rooms.innerHTML = content;
         console.log(data);
     }
 
+    //PLAYER (CLIENT DATA ROUTER)
     updatelobbystate(data) {
         this.switchscreen('lobby');
 
@@ -108,8 +117,19 @@ export class Main {
         this.ui.thisroomplayers.textContent = data.playersnumber + '/10';
         this.ui.playervotes.textContent = data.playersready + '/' + data.playersnumber;
 
+        document.querySelectorAll('.playerslot').forEach(el => {
+            el.style.opacity = '0.3';
+        });
+        document.querySelectorAll('.playernick').forEach(el => {
+            el.textContent = 'СВОБОДНО';
+        });
+        document.querySelectorAll('.readymark').forEach(el => {
+            el.style.display = 'none';
+        });
+
         for(const [playerid, player] of Object.entries(data.playerslist)) {
             let playerslot = document.getElementById(player.team + player.classid);
+            playerslot.style.opacity = '1';
             playerslot.querySelector('.playernick').textContent = player.nickname;
             if(player.isready == true) {
                 playerslot.querySelector('.readymark').style.display = 'block';
@@ -117,7 +137,17 @@ export class Main {
         }
     }
 
+    chatmessage(data) {
+        let msgelement = document.createElement('div');
+        msgelement.textContent = data.msg;
+        msgelement.classList.add('message');
+        
+        this.ui.chat.appendChild(msgelement);
+        this.ui.chat.scrollTop = this.ui.chat.scrollHeight;
+    }
+
     //to server methods (send)
+    //GUEST
     joinroom(roomid) {
         if(this.ui.nickname.value.trim() === '') {
             this.nicknamewarn();
@@ -148,6 +178,7 @@ export class Main {
         this.serversend(type, data);
     }
 
+    //PLAYER (SERVER DATA ROUTER)
     selectslot(id) {
         let team = '';
         let classid = parseInt(id);
@@ -167,6 +198,7 @@ export class Main {
         if(message != '') {
             this.serversend('SENDMESSAGE', {message: message});
         }
+        this.ui.inputmessage.value = '';
     }
 
     ready() {
