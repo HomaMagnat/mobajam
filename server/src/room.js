@@ -30,7 +30,7 @@ class Room {
     sendtoroom(type, data) {
         let rawdata = JSON.stringify({type: type, data: data});
         for(let id in this.players) {
-            if (this.players[id].ws && this.players[id].ws.readyState === 1) {
+            if(this.players[id].ws && this.players[id].ws.readyState === 1) {
                 this.players[id].ws.send(rawdata);
             }
         }
@@ -45,6 +45,7 @@ class Room {
 
         if(this.state == 'LOBBY') {
             delete this.players[ws.playerid];
+            this.rebalanceteams();
             this.sendlobbystate();
         }
     }
@@ -66,26 +67,71 @@ class Room {
         this.sendlobbystate();
     }
 
-    //utility
     findslot() {
-        const teams = ['blue', 'red'];
-        for (let team of teams) {
-            for (let classid = 1; classid <= 5; classid++) {
-                let busy = Object.values(this.players).some(p => p.team === team && p.classid === classid);
-                if (!busy) {
-                    return { team, classid };
-                }
+        let bluecount = Object.values(this.players).filter(p => p.team === 'blue').length;
+        let redcount = Object.values(this.players).filter(p => p.team === 'red').length;
+
+        let targetteam = bluecount <= redcount ? 'blue' : 'red';
+        let backupteam = targetteam === 'blue' ? 'red' : 'blue';
+
+        for(let classid = 1; classid <= 5; classid++) {
+            let busy = Object.values(this.players).some(p => p.team === targetteam && p.classid === classid);
+            if(!busy) {
+                return { team: targetteam, classid };
             }
         }
+        
+        for(let classid = 1; classid <= 5; classid++) {
+            let busy = Object.values(this.players).some(p => p.team === backupteam && p.classid === classid);
+            if(!busy) {
+                return { team: backupteam, classid };
+            }
+        }
+
         return null;
     }
 
-    //from client methods (get)
+    rebalanceteams() {
+        let all = Object.values(this.players);
+        let blue = all.filter(p => p.team === 'blue').length;
+        let red = all.filter(p => p.team === 'red').length;
+
+        if(Math.abs(blue - red) >= 2) {
+            let strong = blue > red ? 'blue' : 'red';
+            let strongplayers = all.filter(p => p.team === strong);
+            let playertomove = strongplayers[strongplayers.length - 1];
+
+            if(playertomove) {
+                let newslot = this.findslot();
+                
+                playertomove.team = newslot.team;
+                playertomove.classid = newslot.classid;
+            }
+        }
+    }
+
     selectslot(ws, data) {
+        let player = this.players[ws.playerid];
+        if(!player) return;
+
         let isoccupied = Object.values(this.players).some(p => p.team === data.team && p.classid === data.classid);
         if(!isoccupied) {
-            this.players[ws.playerid].team = data.team;
-            this.players[ws.playerid].classid = data.classid;
+            if(player.team !== data.team) {
+                let bluecount = Object.values(this.players).filter(p => p.team === 'blue').length;
+                let redcount = Object.values(this.players).filter(p => p.team === 'red').length;
+
+                if(player.team === 'blue' && redcount >= bluecount) {
+                    this.sendlobbystate();
+                    return;
+                }
+                if(player.team === 'red' && bluecount >= redcount) {
+                    this.sendlobbystate();
+                    return;
+                }
+            }
+
+            player.team = data.team;
+            player.classid = data.classid;
         }
 
         this.sendlobbystate();
@@ -98,7 +144,26 @@ class Room {
 
     playerready(ws) {
         this.players[ws.playerid].isready = true;
+        this.checkready();
         this.sendlobbystate();
+    }
+
+    checkready() {
+        let allplayers = Object.values(this.players);
+        
+        if(allplayers.length < 2) {
+            return;
+        };
+
+        let readycount = allplayers.filter(p => p.isready === true).length;
+
+        if (readycount === allplayers.length) {
+            this.startmatch();
+        }
+    }
+
+    startmatch() {
+        if(Object.values(this.players).length < 2) return;
     }
 
     //to client methods (send)

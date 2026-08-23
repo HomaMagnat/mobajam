@@ -77,6 +77,8 @@ class Server {
         } else { //уходит не последний
             this.rooms[ws.roomid].playerleave(ws);
         }
+
+        this.updaterooms();
     }
 
     //format guest send
@@ -91,11 +93,21 @@ class Server {
         let type = 'ROOMLIST';
         let data = {};
         for (const [roomid, room] of Object.entries(this.rooms)) {
-            data[roomid] = {};
-            data[roomid].playersnumber = Object.keys(room.players).length;
-            data[roomid].owner = room.owner;
+            if(room.state == 'LOBBY') {
+                data[roomid] = {};
+                data[roomid].playersnumber = Object.keys(room.players).length;
+                data[roomid].owner = room.owner;
+            }
         }
         this.send(ws, type, data);
+    }
+
+    updaterooms() {
+        this.wss.clients.forEach(ws => {
+            if (ws.readyState === 1 && ws.roomid == null && ws.playerid == null) {
+                this.sendrooms(ws);
+            }
+        });
     }
 
     //from guest (get)
@@ -122,6 +134,8 @@ class Server {
             ws.playerid = crypto.randomUUID();
 
             room.addplayer(ws, nickname);
+
+            this.updaterooms();
         }
     }
 

@@ -11,7 +11,7 @@
 </head>
 
 <style>
-*{
+* {
     /*outline: 1px solid red;*/
 }
 
@@ -68,7 +68,7 @@ padding: 0;
 height: 100%;
 width: 100%;
 overflow: hidden;
-background: url(https://cdn.discordapp.com/attachments/1246825599713148992/1540841794412093570/image.png?ex=6a8b6c3f&is=6a8a1abf&hm=9026eebca32200e3f91bc266ab41e3adfc2ecadd3901dc5d949c98f706a6632b&) no-repeat;
+background: url(https://media.discordapp.net/attachments/1234830687199035442/1541170517443215490/image.png?ex=6a8c9e64&is=6a8b4ce4&hm=a879f903f901550d5348af6abcfa4cce055aebee69134d1ab0cd2b6d1ec00e90&=&format=webp&quality=lossless) no-repeat;
 background-size: cover;
 background-position: right center;
 color: white;
@@ -663,6 +663,82 @@ background: linear-gradient(var(--border), var(--border2));
 border-top: 2px solid var(--borderlight);
 border-bottom: 2px solid var(--borderdark);
 }
+
+
+.dwwrapper {
+display: none;
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+margin: auto;
+width: 400px;
+height: 200px;
+filter: drop-shadow(0px 0px 5px #00000094);
+}
+.disconnectwindow {
+width: calc(100% - 40px);
+height: calc(100% - 40px);
+position: absolute;
+padding: 20px;
+text-align: center;
+line-height: 100px;
+font-size: 20px;
+
+clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+.disconnectwindow::before {
+content: '';
+position: absolute;
+inset: 10px;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+z-index: -1;
+
+background: linear-gradient(var(--main), var(--main2));
+box-shadow: 0 0 30px 5px var(--innershadow) inset;
+}
+
+.reconnect {
+position: absolute;
+width: calc(100% - 60px);
+bottom: 20px;
+padding: 10px;
+font-size: 20px;
+font-weight: bold;
+line-height: normal;
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+cursor: pointer;
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+
+.alonewindow {
+position: absolute;
+width: 600px;
+left: 0;
+right: 0;
+margin: auto;
+top: 15px;
+padding: 20px;
+font-size: 25px;
+font-weight: bold;
+line-height: normal;
+text-align: center;
+transition: all 0.5s;
+
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
 </style>
 
 <body>
@@ -680,10 +756,15 @@ border-bottom: 2px solid var(--borderdark);
 
         <div class="nnwrapper"><div class="nicknamebox"><input class="nickname" placeholder="Ваш никнейм" maxlength="12"></div></div>
         <div class="mmwrapper"><div class="matchmaking" data-action="matchmaking">ИГРАТЬ</div></div>
+
+        <div class="dwwrapper" style="display: none;"><div class="disconnectwindow">
+            Вы были отключены от сервера
+            <div class="reconnect" data-action="reconnect">Хорошо</div>
+        </div></div>
     </div>
 
     <div class="lobby" style="display: none;">
-        <div class="exitwrapper"><div class="exit"><</div></div>
+        <div class="exitwrapper"><div class="exit" data-action="exitlobby">&lt;</div></div>
         <div class="btwrapper">
         <div class="blueteam">
             <div id="blue1" class="playerslot" data-action="selectslot" data-id="1">
@@ -773,6 +854,8 @@ border-bottom: 2px solid var(--borderdark);
             </div>
         </div>
         </div>
+
+        <div class="alonewindow">Для начала игры нужно не менее 2 игроков</div>
     </div>
 
     <div class="game" style="display: none;">

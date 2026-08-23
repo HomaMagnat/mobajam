@@ -17,7 +17,9 @@ export class Main {
             inputmessage: document.querySelector('.inputmessage'),
             mainmenu: document.querySelector('.mainmenu'),
             lobby: document.querySelector('.lobby'),
-            game: document.querySelector('.game')
+            game: document.querySelector('.game'),
+            dwwrapper: document.querySelector('.dwwrapper'),
+            alonewindow: document.querySelector('.alonewindow'),
         };
 
         window.addEventListener('click', (e) => this.globalclick(e));
@@ -63,6 +65,17 @@ export class Main {
         }
     }
 
+    showdisconnect() {
+        this.ui.dwwrapper.style.display = 'block';
+        this.ui.rooms.innerHTML = '';
+        this.ui.chat.innerHTML = '';
+    }
+
+    reconnect() {
+        this.connect();
+        this.ui.dwwrapper.style.display = 'none';
+    }
+
     //ws
     connect() {
         this.ws = new WebSocket('wss://mobajam.hmxstudio.ru:9080');
@@ -70,12 +83,12 @@ export class Main {
         this.ws.onmessage = (event) => this.ondata(event.data);
 
         this.ws.onclose = (event) => {
-          console.log('Disconnected');
+            this.onclose();
         };
 
         this.ws.onerror = (error) => {
-          console.error('Connection Error: ', error);
-          this.ws.close();
+            console.error('Connection Error: ', error);
+            this.ws.close();
         };
     }
 
@@ -97,10 +110,19 @@ export class Main {
         }
     }
 
+    onclose() {
+        this.switchscreen('mainmenu');
+        this.showdisconnect();
+    }
+
+    exitlobby() {
+        this.ws.close();
+    }
+
     //from server methods (get)
     //GUEST
     roomlist(data) {
-        let content = '';
+        this.ui.rooms.innerHTML = '';
         for(const [roomid, room] of Object.entries(data)) {
             this.ui.rooms.insertAdjacentHTML('beforeend', `<div class="room"><div class="roomname"></div><div class="roomplayers">${room.playersnumber}/10</div><div class="login" data-action="joinroom" data-id="${roomid}">ВОЙТИ</div></div>`);
             let roomname = this.ui.rooms.lastElementChild.querySelector('.roomname');
@@ -134,6 +156,15 @@ export class Main {
             if(player.isready == true) {
                 playerslot.querySelector('.readymark').style.display = 'block';
             }
+        }
+
+        if(data.playersnumber < 2) {
+            this.ui.alonewindow.style.opacity = '1';
+            setTimeout(() => {
+                this.ui.alonewindow.style.opacity = '0';
+            }, 3000);
+        } else {
+            this.ui.alonewindow.style.opacity = '0';
         }
     }
 
