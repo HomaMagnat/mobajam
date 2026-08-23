@@ -1,8 +1,9 @@
 const Player = require('./player'); 
 
 class Room {
-    constructor(roomid) {
+    constructor(roomid, owner) {
         this.id = roomid;
+        this.owner = owner;
         this.state = 'LOBBY';
         this.players = {};
     }

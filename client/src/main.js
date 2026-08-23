@@ -10,7 +10,9 @@ export class Main {
             lobbytime: document.querySelector('.lobbytime'),
             thisroomname: document.querySelector('.thisroomname'),
             thisroomplayers: document.querySelector('.thisroomplayers'),
-            playervotes: document.querySelector('.playervotes')
+            playervotes: document.querySelector('.playervotes'),
+            chat: document.querySelector('.chat'),
+            inputmessage: document.querySelector('.inputmessage')
         };
 
         window.addEventListener('click', (e) => this.globalclick(e));
@@ -70,7 +72,7 @@ export class Main {
         let index = 0;
         for(const [roomid, room] of Object.entries(data)) {
             index++;
-            content += `<div class="room"><div class="roomname">ЛОББИ #${index}</div><div class="roomplayers">${room.playersnumber}/10</div><div class="login" data-action="joinroom" data-id="${roomid}">ВОЙТИ</div></div>`;
+            content += `<div class="room"><div class="roomname">ЛОББИ ${room.owner}</div><div class="roomplayers">${room.playersnumber}/10</div><div class="login" data-action="joinroom" data-id="${roomid}">ВОЙТИ</div></div>`;
         }
         this.ui.rooms.innerHTML = content;
         console.log(data);

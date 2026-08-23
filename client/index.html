@@ -362,9 +362,264 @@ box-shadow: 0 0 30px 5px var(--innershadow) inset;
 
 .playerslot {
 width: 100%;
-height: calc(20% - 10px);
+height: calc(20% - 14px);
 margin-top: 10px;
-background: red;
+
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+
+.middledata {
+position: absolute;
+left: 0;
+right: 0;
+margin: auto;
+width: 25%;
+height: 100%;
+text-align: center;
+}
+
+.rdwrapper {
+position: absolute;
+font-weight: bold;
+font-size: 60px;
+left: 0;
+right: 0;
+bottom: 50px;
+margin: auto;
+width: 100%;
+min-width: 250px;
+text-align: center;
+cursor: pointer;
+filter: drop-shadow(0px 0px 8px black);
+text-shadow: 0 0 5px white;
+}
+.ready {
+padding: 15px 20px 15px 20px;
+
+clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+.ready::before {
+content: '';
+position: absolute;
+inset: 10px;
+z-index: -1;
+clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+
+background: linear-gradient(#147914, #08270b);
+border-top: 2px solid #1ca117;
+border-bottom: 2px solid #041b03;
+}
+
+.cbwrapper {
+position: absolute;
+left: 0;
+right: 0;
+bottom: 200px;
+margin: auto;
+width: 95%;
+height: 40%;
+filter: drop-shadow(0px 0px 5px #00000094);
+}
+.chatbox {
+position: absolute;
+width: calc(100% - 40px);
+height: calc(100% - 40px);
+padding: 15px 20px 20px 20px;
+
+clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+.chatbox::before {
+content: '';
+position: absolute;
+inset: 10px;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+z-index: -1;
+
+background: linear-gradient(var(--main), var(--main2));
+box-shadow: 0 0 30px 5px var(--innershadow) inset;
+}
+
+.chat {
+width: 100%;
+height: calc(100% - 50px);
+overflow-y: scroll;
+}
+
+.chatinput {
+width: 100%;
+height: 50px;
+padding-top: 9px;
+}
+
+.message {
+padding: 8px;
+margin-top: 5px;
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+word-break: break-all;
+text-align: left;
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+
+.imbox {
+display: inline-block;
+width: calc(100% - 70px);
+padding: 5px;
+
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+
+vertical-align: bottom;
+}
+.inputmessage {
+width: calc(100% - 24px);
+color: white;
+font-size: 16px;
+font-family: "Fira Sans", sans-serif;
+outline: none;
+border: none;
+padding: 5px 10px 5px 10px;
+
+clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px);
+
+background: var(--main2);
+box-shadow: 0 0 30px 5px var(--innershadow) inset;
+}
+.chatsubmit {
+display: inline-block;
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+height: 39px;
+width: 50px;
+vertical-align: bottom;
+cursor: pointer;
+font-size: 32px;
+font-weight: bold;
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+
+.rmdwrapper {
+position: absolute;
+left: 0;
+right: 0;
+top: 230px;
+margin: auto;
+width: 95%;
+height: 150px;
+filter: drop-shadow(0px 0px 5px #00000094);
+}
+.roomdata {
+position: absolute;
+width: calc(100% - 40px);
+height: calc(100% - 40px);
+padding: 15px 20px 20px 20px;
+
+clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+.roomdata::before {
+content: '';
+position: absolute;
+inset: 10px;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+z-index: -1;
+
+background: linear-gradient(var(--main), var(--main2));
+box-shadow: 0 0 30px 5px var(--innershadow) inset;
+}
+
+.dataline {
+padding: 10px;
+margin-top: 5px;
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+word-break: break-all;
+text-align: left;
+font-size: 22px;
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+
+.ltwrapper {
+position: absolute;
+top: 80px;
+right: 0;
+left: 0;
+margin: auto;
+width: 400px;
+filter: drop-shadow(0px 0px 8px #000000a6);
+}
+
+.lobbytime {
+text-align: center;
+padding: 20px;
+font-weight: bold;
+font-size: 60px;
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+text-shadow: 0 0 5px white;
+
+clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+}
+.lobbytime::before {
+content: '';
+position: absolute;
+inset: 10px;
+z-index: -1;
+
+clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
+
+background: linear-gradient(#363886, #0d0e30);
+border-top: 2px solid #40439c;
+border-bottom: 2px solid #0c0c18;
+}
+
+.avatar {
+height: 100%;
+aspect-ratio: 1 / 1;
+background: url(https://media.discordapp.net/attachments/1246825599713148992/1541049579976400976/image.png?ex=6a8c2dc3&is=6a8adc43&hm=6e03c05f319860dcd97a5335200fb7845b04765c24105976a7e4f54a34d16388&=&format=webp&quality=lossless);
+background-size: contain;
+display: inline-block;
+}
+.slotinfo {
+display: inline-block;
+vertical-align: center;
+margin-top: -12px;
+}
+.playernick {
+display: block;
+font-size: 40px;
+font-weight: bold;
+}
+.playerclass {
+display: block;
+font-size: 20px;
+font-weight: bold;
 }
 </style>
 
@@ -388,31 +643,93 @@ background: red;
     <div class="lobby">
         <div class="btwrapper">
         <div class="blueteam">
-            <div class="playerslot"></div>
-            <div class="playerslot"></div>
-            <div class="playerslot"></div>
-            <div class="playerslot"></div>
-            <div class="playerslot"></div>
+            <div class="playerslot" data-action="selectslot" data-id="1">
+                <div class="avatar"></div>
+                <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
+                <div class="playerclass">Роль</div></div>
+            </div>
+            <div class="playerslot" data-action="selectslot" data-id="2">
+                <div class="avatar"></div>
+                <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
+                <div class="playerclass">Роль</div></div>
+            </div>
+            <div class="playerslot" data-action="selectslot" data-id="3">
+                <div class="avatar"></div>
+                <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
+                <div class="playerclass">Роль</div></div>
+            </div>
+            <div class="playerslot" data-action="selectslot" data-id="4">
+                <div class="avatar"></div>
+                <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
+                <div class="playerclass">Роль</div></div>
+            </div>
+            <div class="playerslot" data-action="selectslot" data-id="5">
+                <div class="avatar"></div>
+                <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
+                <div class="playerclass">Роль</div></div>
+            </div>
         </div>
         </div>
 
         <div class="middledata">
-            <div class="lobbytime"></div>
-            <div class="dataline">Название лобби: ЛОББИ #<div class="thisroomname"></div></div>
-            <div class="dataline">Игроки: <div class="thisroomplayers"></div></div>
+            <div class="ltwrapper"><div class="lobbytime">0:00</div></div>
+
+            <div class="rmdwrapper"><div class="roomdata">
+                <div class="dataline">Название: ЛОББИ <span class="thisroomname">OWNER</span></div>
+                <div class="dataline">Игроки: <span class="thisroomplayers">2/10</span></div>
+            </div></div>
+
+            <div class="cbwrapper"><div class="chatbox">
+                <div class="chat">
+                    <div class="message">ИГРОК: Сообщение</div>
+                    <div class="message">ИГРОК: Сообщение</div>
+                    <div class="message">ИГРОК: Сообщение</div>
+                    <div class="message">ИГРОК: Сообщение</div>
+                    <div class="message">ИГРОК: Сообщение</div>
+                    <div class="message">ИГРОК: СообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщениеСообщение</div>
+                    <div class="message">ИГРОК: Сообщение</div>
+                    <div class="message">ИГРОК: Сообщение</div>
+                    <div class="message">ИГРОК: Сообщение</div>
+                    <div class="message">ИГРОК: Сообщение</div>
+                </div>
+                <div class="chatinput">
+                    <div class="imbox"><input class="inputmessage" placeholder="Сообщение..."></div>
+                    <div class="chatsubmit" data-action="sendmessage">-></div>
+                </div>
+            </div></div>
+
+            <div class="rdwrapper"><div class="ready" data-action="ready">ГОТОВ <span id="playervotes">1/2</span></div></div>
         </div>
 
         <div class="rtwrapper">
         <div class="redteam">
-            <div class="playerslot"></div>
-            <div class="playerslot"></div>
-            <div class="playerslot"></div>
-            <div class="playerslot"></div>
-            <div class="playerslot"></div>
+            <div class="playerslot" data-action="selectslot" data-id="6">
+                <div class="avatar"></div>
+                <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
+                <div class="playerclass">Роль</div></div>
+            </div>
+            <div class="playerslot" data-action="selectslot" data-id="7">
+                <div class="avatar"></div>
+                <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
+                <div class="playerclass">Роль</div></div>
+            </div>
+            <div class="playerslot" data-action="selectslot" data-id="8">
+                <div class="avatar"></div>
+                <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
+                <div class="playerclass">Роль</div></div>
+            </div>
+            <div class="playerslot" data-action="selectslot" data-id="9">
+                <div class="avatar"></div>
+                <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
+                <div class="playerclass">Роль</div></div>
+            </div>
+            <div class="playerslot" data-action="selectslot" data-id="10">
+                <div class="avatar"></div>
+                <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
+                <div class="playerclass">Роль</div></div>
+            </div>
         </div>
         </div>
-
-        <div class="ready" data-action="ready">ГОТОВ <span id="playervotes"></span></div>
     </div>
 
     <div class="gameui" style="display: none;">

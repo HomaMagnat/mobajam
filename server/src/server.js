@@ -82,6 +82,7 @@ class Server {
         for (const [roomid, room] of Object.entries(this.rooms)) {
             data[roomid] = {};
             data[roomid].playersnumber = Object.keys(room.players).length;
+            data[roomid].owner = room.owner;
         }
         this.send(ws, type, data);
     }
@@ -114,7 +115,7 @@ class Server {
 
     createroom(ws, nickname) { //создание лобби
         let roomid = crypto.randomUUID();
-        this.rooms[roomid] = new Room(roomid);
+        this.rooms[roomid] = new Room(roomid, nickname);
         
         this.joinroom(ws, nickname, roomid);
     }
