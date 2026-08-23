@@ -31,6 +31,7 @@ class Server {
         });
     }
 
+    //ws
     onconnection = (ws, req) => { //СЮДА ПРИЛЕТАЕТ ЛЮБОЕ СОЕДИНЕНИЕ (ЕЩЁ НЕ ИГРОК)
         ws.roomid = null;
         ws.playerid = null;
@@ -58,7 +59,7 @@ class Server {
                 this.createroom(ws, data.nickname);
             }
         } else { //ЗАПРОС ОТ ИГРОКА В ЛОББИ ИЛИ ИГРЕ
-
+            this.rooms[ws.roomid].ondata(ws, type, data);
         }
     }
 
@@ -66,16 +67,18 @@ class Server {
         if(ws.roomid == null && ws.playerid == null) { //ЗАПРОС ОТ СОЕДИНЕНИЯ БЕЗ ИГРОКА НЕ В ЛОББИ
             //если его нигде не было, то похую вообще
         } else { //ЗАПРОС ОТ ИГРОКА В ЛОББИ ИЛИ ИГРЕ
-
+            this.playerleave(ws);
         }
     }
 
+    //format guest send
     send(ws, type, data) {
         let jsondata = {type: type, data: data};
         let rawdata = JSON.stringify(jsondata);
         ws.send(rawdata);
     }
 
+    //to guest (send)
     sendrooms(ws) {
         let type = 'ROOMLIST';
         let data = {};
@@ -87,6 +90,7 @@ class Server {
         this.send(ws, type, data);
     }
 
+    //from guest (get)
     matchmaking(ws, nickname) { //автоподбор лобби для входа игрока (нужно соединение и никнейм из меню)
         let allrooms = Object.values(this.rooms);
 

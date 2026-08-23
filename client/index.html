@@ -361,6 +361,7 @@ box-shadow: 0 0 30px 5px var(--innershadow) inset;
 }
 
 .playerslot {
+position: relative;
 width: 100%;
 height: calc(20% - 14px);
 margin-top: 10px;
@@ -621,10 +622,24 @@ display: block;
 font-size: 20px;
 font-weight: bold;
 }
+
+.readymark {
+position: absolute;
+right: 30px;
+top: 0;
+bottom: 0;
+height: 33px;
+margin: auto;
+font-size: 30px;
+font-weight: bold;
+color: #30dc22;
+text-shadow: 0 0 5px #30dc22a1;
+display: none;
+}
 </style>
 
 <body>
-    <div class="mainmenu" style="display: none;">
+    <div class="mainmenu">
         <div class="gtwrapper"><div class="gametitle">MobaJam</div></div>
 
         <div class="rlwrapper"><div class="roomlist">
@@ -640,33 +655,38 @@ font-weight: bold;
         <div class="mmwrapper"><div class="matchmaking" data-action="matchmaking">ИГРАТЬ</div></div>
     </div>
 
-    <div class="lobby">
+    <div class="lobby" style="display: none;">
         <div class="btwrapper">
         <div class="blueteam">
-            <div class="playerslot" data-action="selectslot" data-id="1">
+            <div id="blue1" class="playerslot" data-action="selectslot" data-id="1">
                 <div class="avatar"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div></div>
+                <div class="playerclass">Роль</div>
+                <div class="readymark">ГОТОВ</div></div>
             </div>
-            <div class="playerslot" data-action="selectslot" data-id="2">
+            <div id="blue2" class="playerslot" data-action="selectslot" data-id="2">
                 <div class="avatar"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div></div>
+                <div class="playerclass">Роль</div>
+                <div class="readymark">ГОТОВ</div></div>
             </div>
-            <div class="playerslot" data-action="selectslot" data-id="3">
+            <div id="blue3" class="playerslot" data-action="selectslot" data-id="3">
                 <div class="avatar"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div></div>
+                <div class="playerclass">Роль</div>
+                <div class="readymark">ГОТОВ</div></div>
             </div>
-            <div class="playerslot" data-action="selectslot" data-id="4">
+            <div id="blue4" class="playerslot" data-action="selectslot" data-id="4">
                 <div class="avatar"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div></div>
+                <div class="playerclass">Роль</div>
+                <div class="readymark">ГОТОВ</div></div>
             </div>
-            <div class="playerslot" data-action="selectslot" data-id="5">
+            <div id="blue5" class="playerslot" data-action="selectslot" data-id="5">
                 <div class="avatar"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div></div>
+                <div class="playerclass">Роль</div>
+                <div class="readymark">ГОТОВ</div></div>
             </div>
         </div>
         </div>
@@ -698,44 +718,48 @@ font-weight: bold;
                 </div>
             </div></div>
 
-            <div class="rdwrapper"><div class="ready" data-action="ready">ГОТОВ <span id="playervotes">1/2</span></div></div>
+            <div class="rdwrapper"><div class="ready" data-action="ready">ГОТОВ <span class="playervotes">1/2</span></div></div>
         </div>
 
         <div class="rtwrapper">
         <div class="redteam">
-            <div class="playerslot" data-action="selectslot" data-id="6">
+            <div id="red1" class="playerslot" data-action="selectslot" data-id="6">
                 <div class="avatar"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div></div>
+                <div class="playerclass">Роль</div>
+                <div class="readymark">ГОТОВ</div></div>
             </div>
-            <div class="playerslot" data-action="selectslot" data-id="7">
+            <div id="red2" class="playerslot" data-action="selectslot" data-id="7">
                 <div class="avatar"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div></div>
+                <div class="playerclass">Роль</div>
+                <div class="readymark">ГОТОВ</div></div>
             </div>
-            <div class="playerslot" data-action="selectslot" data-id="8">
+            <div id="red3" class="playerslot" data-action="selectslot" data-id="8">
                 <div class="avatar"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div></div>
+                <div class="playerclass">Роль</div>
+                <div class="readymark">ГОТОВ</div></div>
             </div>
-            <div class="playerslot" data-action="selectslot" data-id="9">
+            <div id="red4" class="playerslot" data-action="selectslot" data-id="9">
                 <div class="avatar"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div></div>
+                <div class="playerclass">Роль</div>
+                <div class="readymark">ГОТОВ</div></div>
             </div>
-            <div class="playerslot" data-action="selectslot" data-id="10">
+            <div id="red5" class="playerslot" data-action="selectslot" data-id="10">
                 <div class="avatar"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div></div>
+                <div class="playerclass">Роль</div>
+                <div class="readymark">ГОТОВ</div></div>
             </div>
         </div>
         </div>
     </div>
 
-    <div class="gameui" style="display: none;">
+    <div class="game" style="display: none;">
+        <canvas id="canvas"></canvas>
     </div>
-
-    <canvas id="canvas" style="display: none;"></canvas>
     
     <script type="module" src="src/main.js"></script>
 

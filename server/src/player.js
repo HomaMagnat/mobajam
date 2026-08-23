@@ -3,10 +3,10 @@ class Player {
         this.id = playerid;
         this.ws = ws;
         this.nickname = nickname;
-        
+
         this.team = null;
-        this.class = null;
-        this.isready = null;
+        this.classid = null;
+        this.isready = false;
 
         this.x = 0; this.y = 0;
         this.hp = 100;
