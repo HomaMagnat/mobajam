@@ -15,6 +15,20 @@ class Room {
         };
 
         this.location = [{type: 'tile', texture: 'tile1', x: 3, y: 3, hitbox: true}];
+        this.towers = {
+            blue: {
+                mid: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
+                top: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
+                bottom: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
+                throne: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30}
+            },
+            red: {
+                mid: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
+                top: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
+                bottom: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
+                throne: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30}
+            }
+        };
 
         this.clock = 0;
         this.bluescore = 0;
@@ -75,6 +89,8 @@ class Room {
     }
 
     addplayer(ws, nickname) {
+        if(this.state != 'LOBBY') return;
+
         let playerid = ws.playerid;
         let newplayer = new Player(playerid, ws, nickname);
 
@@ -92,6 +108,8 @@ class Room {
     }
 
     findslot() {
+        if(this.state != 'LOBBY') return;
+
         let bluecount = Object.values(this.players).filter(p => p.team === 'blue').length;
         let redcount = Object.values(this.players).filter(p => p.team === 'red').length;
 
@@ -135,6 +153,8 @@ class Room {
     }
 
     selectslot(ws, data) {
+        if(this.state != 'LOBBY') return;
+
         let player = this.players[ws.playerid];
         if(!player) return;
 
@@ -206,7 +226,7 @@ class Room {
             player.speed = config.speed;
         }
 
-        this.clock = 5;
+        this.clock = 10;
         const buytimer = () => {
             this.clock--;
             if(this.clock <= 0) {
@@ -216,6 +236,8 @@ class Room {
             }
         }
         setTimeout(buytimer, 1000);
+
+        this.sendtoroom('BUYPHASE', {});
     }
 
     startround() {
@@ -229,9 +251,13 @@ class Room {
             }
         }
         setTimeout(roundtimer, 1000);
+
+        this.sendtoroom('ROUND', {});
     }
 
     gameclick(ws, data) {
+        if(this.state != 'ROUND') return;
+
         let player = this.players[ws.playerid];
         if(player && !player.isdead) {
             player.targetx = data.targetx;
@@ -271,6 +297,7 @@ class Room {
     checkarcollision(data, player) {
         for(let id in this.players) {
             if(id == player.id) continue; //не текущий
+            if(this.players[id].isdead) continue;
             if(this.players[id].team == player.team) continue; //не в нашей команде
 
             let thisplayer = {x: player.x, y: player.y, radius: player.classesconfig[player.classid].attackradius}; //позиция игрока И ЕГО РАДИУС АТАКИ
@@ -305,6 +332,11 @@ class Room {
 
         player.mana = Math.max(0, player.mana - config.manacost);
         enemy.hp = Math.max(0, enemy.hp - config.damage);
+        if(enemy.hp == 0) {
+            player.gold += 800;
+            enemy.isdead = true;
+            enemy.inventory = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+        }
     }
 
     //to client methods (send)
@@ -349,6 +381,7 @@ class Room {
     roomupdate(dt) {
         let data = {};
         data.players = {};
+        data.towers = this.towers;
 
         for(let id in this.players) {
             this.players[id].playerupdate(dt, this.location, this.players); //update only every logic dynamic prorps
@@ -381,6 +414,11 @@ class Room {
         data.redscore = this.redscore;
 
         this.sendtoroom('UPDATEROOM', data);
+
+        if(this.state == 'ROUND') {
+            //проверка на победу в раунде
+            //проверка на победу в игре
+        }
     }
 }
 

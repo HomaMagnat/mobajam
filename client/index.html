@@ -827,6 +827,7 @@ background: var(--main);
 width: 100%;
 height: 30px;
 background: linear-gradient(rgb(196, 9, 9), rgb(75, 4, 4));
+transition: all 0.1s;
 }
 
 .manabox {
@@ -839,6 +840,37 @@ background: var(--main);
 width: 100%;
 height: 20px;
 background: linear-gradient(rgb(14, 14, 175), rgb(6, 6, 77));
+transition: all 0.1s;
+}
+
+.goldbox {
+position: absolute;
+bottom: 0;
+right: 0;
+padding: 5px;
+height: 30px;
+width: 100px;
+}
+
+.tophint {
+text-align: center;
+font-size: 20px;
+margin-top: 10px;
+text-shadow: 2px 2px 2px black;
+}
+
+.youdied {
+position: absolute;
+bottom: 200px;
+text-align: center;
+font-size: 20px;
+text-shadow: 2px 2px 2px black;
+}
+
+.shop {
+position: absolute;
+bottom: 110px;
+right: 10px;
 }
 </style>
 
@@ -902,7 +934,7 @@ background: linear-gradient(rgb(14, 14, 175), rgb(6, 6, 77));
         </div>
 
         <div class="middledata">
-            <div class="ltwrapper"><div class="lobbytime">0:00</div></div>
+            <div class="ltwrapper"><div class="lobbytime">ЛОББИ</div></div>
 
             <div class="rmdwrapper"><div class="roomdata">
                 <div class="dataline">Название: ЛОББИ <span class="thisroomname">OWNER</span></div>
@@ -963,6 +995,7 @@ background: linear-gradient(rgb(14, 14, 175), rgb(6, 6, 77));
         <div class="gameui">
             <div class="topui">
                 <div class="bluescore"></div><div class="clock"></div><div class="redscore"></div>
+                <div class="tophint"></div>
             </div>
             <div class="bottomui">
                 <div class="cooldownbox"><div class="mycooldown"></div></div>
@@ -970,10 +1003,15 @@ background: linear-gradient(rgb(14, 14, 175), rgb(6, 6, 77));
                 <div class="hpbox"><div class="myhp"></div></div>
                 <div class="manabox"><div class="mymana"></div></div>
             </div>
-            <div class="shop" style="display: none;">
-                <div class="buyitem"><div class="itemname"></div><div class="itemprice"></div></div>
-            </div>
             <div class="goldbox"><div class="mygold"></div></div>
+            <div class="youdied">Вас убили. Дождитесь следующего раунда</div>
+        </div>
+        <div class="shop" style="display: none;">
+            <div class="buyitem"><div class="itemname">Меч</div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
+            <div class="buyitem"><div class="itemname">Щит</div><div class="itemprice" data-action="buy" data-id="shield">500</div></div>
+            <div class="buyitem"><div class="itemname"></div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
+            <div class="buyitem"><div class="itemname">Зелье исцеления</div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
+            <div class="buyitem"><div class="itemname"></div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
         </div>
         <canvas id="canvas"></canvas>
     </div>

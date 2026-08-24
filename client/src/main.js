@@ -9,11 +9,14 @@ export class Main {
             MATCHSTART: (data) => this.matchstart(data),
             GETMYID: (data) => this.getmyid(data),
             UPDATEROOM: (data) => this.updateroom(data),
-            DELETEPLAYER: (data) => this.deleteplayer(data)
+            DELETEPLAYER: (data) => this.deleteplayer(data),
+            BUYPHASE: (data) => this.buyphase(),
+            ROUND: (data) => this.round()
         };
 
         this.location = [{type: 'tile', texture: 'tile1', x: 3, y: 3, hitbox: true}];
         this.players = {};
+        this.towers = {};
         this.myid = '';
 
         this.ui = {
@@ -36,7 +39,10 @@ export class Main {
             myhp: document.querySelector('.myhp'),
             mymana: document.querySelector('.mymana'),
             mycooldown: document.querySelector('.mycooldown'),
-            mygold: document.querySelector('.mygold')
+            mygold: document.querySelector('.mygold'),
+            tophint: document.querySelector('.tophint'),
+            shop: document.querySelector('.shop'),
+            youdied: document.querySelector('.youdied')
         };
 
         window.addEventListener('click', (e) => this.globalclick(e));
@@ -97,6 +103,7 @@ export class Main {
             this.requestid = null;
         }
         this.players = {};
+        this.towers = {};
     }
 
     //game
@@ -242,6 +249,17 @@ export class Main {
         delete this.players[data.id];
     }
 
+    buyphase() {
+        this.ui.tophint.textContent = 'ВРЕМЯ ЗАКУПКИ';
+        this.ui.shop.style.display = 'block';
+        this.ui.youdied.style.display = 'none';
+    }
+
+    round() {
+        this.ui.tophint.textContent = 'РАУНД';
+        this.ui.shop.style.display = 'none';
+    }
+
     //to server methods (send)
     //GUEST
     joinroom(roomid) {
@@ -312,6 +330,8 @@ export class Main {
             }
         }
 
+        this.towers = data.towers;
+
         const minutes = Math.floor(data.clock / 60);
         const seconds = data.clock % 60;
 
@@ -322,7 +342,11 @@ export class Main {
         this.ui.myhp.style.width = ((data.players[this.myid].hp / data.players[this.myid].config.hp) * 100) + '%';
         this.ui.mymana.style.width = ((data.players[this.myid].mana / data.players[this.myid].config.mana) * 100) + '%';
         this.ui.mycooldown.style.width = ((data.players[this.myid].currentcooldown / data.players[this.myid].config.cooldown) * 100) + '%';
-        this.ui.mygold.style.textContent = data.players[this.myid].gold;
+        this.ui.mygold.textContent = data.players[this.myid].gold;
+
+        if(data.players[this.myid].isdied) {
+            this.ui.youdied.style.display = 'block';
+        }
     }
 }
 

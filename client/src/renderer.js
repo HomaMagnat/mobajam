@@ -16,7 +16,7 @@ export class Renderer {
 
         this.textures = { //sprites, images, assets
             'tile1': this.loadimg('src/textures/tile1.png'),
-            'test': this.loadimg('src/textures/test.png')
+            'test': this.loadimg('https://media.discordapp.net/attachments/1246825599713148992/1541563905736843295/class1_downright_run_red.png?ex=6a8e0cc4&is=6a8cbb44&hm=523d7568a19575497e00b945ad846734e008225da5ecc76460338977e2ef91ee&=&format=webp&quality=lossless')
         };
 
         this.preloadplayersprites();
@@ -41,8 +41,11 @@ export class Renderer {
         classes.forEach(c => {
             directions.forEach(dir => {
                 animations.forEach(anim => {
-                    const key = `class${c}_${dir}_${anim}`;
+                    const key = `class${c}_${dir}_${anim}_blue`;
                     this.textures[key] = this.loadimg(`src/textures/${key}.png`);
+
+                    const key2 = `class${c}_${dir}_${anim}_red`;
+                    this.textures[key2] = this.loadimg(`src/textures/${key2}.png`);
                 });
             });
         });
@@ -93,7 +96,7 @@ export class Renderer {
         for(let id in this.main.players) { //игроки
             let p = this.main.players[id];
             if(!p.isdead) {
-                renderqueue.push({ type: 'player', x: p.x, y: p.y, texture: 'class'+p.classid+'_'+p.direction+'_'+p.animation });
+                renderqueue.push({ type: 'player', x: p.x, y: p.y, texture: 'class'+p.classid+'_'+p.direction+'_'+p.animation+'_'+p.team });
             }
         }
 

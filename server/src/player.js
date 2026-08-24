@@ -110,6 +110,7 @@ class Player {
         //физическое столкновение хитбоксов игроков
         for(let id in players) {
             if(id == this.id) continue;
+            if(players[id].isdead) continue;
             if(this.aabb(
                 {x: this.x, y: this.y, w: this.PLAYERWIDTH, h: this.PLAYERHEIGHT},
                 {x: players[id].x, y: players[id].y, w: this.PLAYERWIDTH, h: this.PLAYERHEIGHT}
