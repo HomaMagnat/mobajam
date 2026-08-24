@@ -1,4 +1,4 @@
-const Player = require('./player'); 
+const Player = require('./player');
 
 class Room {
     constructor(roomid, owner) {
@@ -46,6 +46,7 @@ class Room {
         if(this.state == 'LOBBY') {
             delete this.players[ws.playerid];
             this.rebalanceteams();
+            this.checkready();
             this.sendlobbystate();
         }
     }
@@ -164,10 +165,16 @@ class Room {
 
     startmatch() {
         if(Object.values(this.players).length < 2) return;
+
+        this.state = 'BUYPHASE';
+
+        this.sendmatchstart();
     }
 
     //to client methods (send)
     sendlobbystate() {
+        if(this.state != 'LOBBY') return;
+
         let data = {};
         data.owner = this.owner;
         data.playersnumber = Object.keys(this.players).length;
@@ -193,6 +200,13 @@ class Room {
 
     sendchatmessage(data) {
         this.sendtoroom('CHATMESSAGE', {msg: data});
+    }
+
+    sendmatchstart() {
+        for(let id in this.players) {
+            this.sendtoplayer(this.players[id].ws, 'GETMYID', {myid: id});
+        }
+        this.sendtoroom('MATCHSTART', {});
     }
 }
 

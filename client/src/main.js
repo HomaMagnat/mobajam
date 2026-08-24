@@ -1,10 +1,18 @@
+import { Renderer } from './renderer.js';
+
 export class Main {
     constructor() {
         this.routes = {
             ROOMLIST: (data) => this.roomlist(data), //GUEST
             UPDATELOBBYSTATE: (data) => this.updatelobbystate(data),
-            CHATMESSAGE: (data) => this.chatmessage(data)
+            CHATMESSAGE: (data) => this.chatmessage(data),
+            MATCHSTART: (data) => this.matchstart(data),
+            GETMYID: (data) => this.getmyid(data)
         };
+
+        this.location = [{type: 'tile', texture: 'tile1', x: 0, y: 0}, {type: 'tile', texture: 'tile1', x: 1, y: 0}, {type: 'tile', texture: 'tile1', x: 1, y: 1}];
+        this.players = {};
+        this.myid = '';
 
         this.ui = {
             nickname: document.querySelector('.nickname'),
@@ -25,6 +33,8 @@ export class Main {
         window.addEventListener('click', (e) => this.globalclick(e));
 
         this.ui.inputmessage.addEventListener('keydown', this.checkenter);
+
+        this.renderer = new Renderer(this);
 
         this.connect();
     }
@@ -69,6 +79,12 @@ export class Main {
         this.ui.dwwrapper.style.display = 'block';
         this.ui.rooms.innerHTML = '';
         this.ui.chat.innerHTML = '';
+    }
+
+    //game
+    mainloop = () => { //game cycle
+        this.renderer.renderframe();
+        requestAnimationFrame(this.mainloop);
     }
 
     reconnect() {
@@ -175,6 +191,15 @@ export class Main {
         
         this.ui.chat.appendChild(msgelement);
         this.ui.chat.scrollTop = this.ui.chat.scrollHeight;
+    }
+
+    matchstart(data) {
+        this.switchscreen('game');
+        requestAnimationFrame(this.mainloop);
+    }
+
+    getmyid(data) {
+        this.myid = data.myid;
     }
 
     //to server methods (send)
