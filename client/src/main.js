@@ -11,7 +11,7 @@ export class Main {
             UPDATEROOM: (data) => this.updateroom(data)
         };
 
-        this.location = [{type: 'tile', texture: 'tile1', x: 0, y: 0}, {type: 'tile', texture: 'tile1', x: 1, y: 0}, {type: 'tile', texture: 'tile1', x: 1, y: 1}];
+        this.location = [{type: 'tile', texture: 'tile1', x: 3, y: 3, hitbox: true}];
         this.players = {};
         this.myid = '';
 

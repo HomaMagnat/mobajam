@@ -13,6 +13,10 @@ class Room {
             READY: (ws) => this.playerready(ws),
             GAMECLICK: (ws, data) => this.gameclick(ws, data)
         };
+
+        this.location = [{type: 'tile', texture: 'tile1', x: 3, y: 3, hitbox: true}];
+
+        this.clock = 0;
     }
 
     //ws
@@ -167,16 +171,49 @@ class Room {
     startmatch() {
         if(Object.values(this.players).length < 2) return;
 
-        this.state = 'BUYPHASE';
+        this.startbuyphase();
 
         this.sendmatchstart();
     }
 
+    startbuyphase() { //всё начинаем сначала, возрождаем, задаём значения
+        this.state = 'BUYPHASE';
+        
+        for(let id in this.players) {
+            const player = this.players[id];
+            const config = player.classesconfig[player.classid];
+            player.isdead = false;
+            player.x = config.x;
+            player.y = config.y;
+            player.hp = config.hp;
+            player.mana = config.mana;
+            player.speed = config.speed;
+        }
+
+        this.clock = 20;
+        const buytimer = () => {
+            this.clock--;
+            if(this.clock <= 0) {
+                this.startround();
+            } else {
+                setTimeout(buytimer, 1000);
+            }
+        }
+        setTimeout(buytimer, 1000);
+    }
+
+    startround() {
+        this.state = 'ROUND';
+        this.clock = 0;
+        setInterval(() => {
+            this.clock++;
+        }, 1000);
+    }
+
     gameclick(ws, data) {
         let player = this.players[ws.playerid];
-        if (player && !player.isdead) {
-            player.targetx = data.targetx;
-            player.targety = data.targety;
+        if(player && !player.isdead) {
+            player.gameclick(data);
         }
     }
 
@@ -224,7 +261,7 @@ class Room {
         data.players = {};
 
         for(let id in this.players) {
-            this.players[id].playerupdate(dt); //update only every logic dynamic prorps
+            this.players[id].playerupdate(dt, this.location, this.players); //update only every logic dynamic prorps
 
             data.players[id] = {
                 x: this.players[id].x,
@@ -235,6 +272,8 @@ class Room {
                 isdead: this.players[id].isdead
             }
         }
+
+        data.clock = this.clock;
 
         this.sendtoroom('UPDATEROOM', data);
     }
