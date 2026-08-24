@@ -42,10 +42,26 @@ class Room {
     }
 
     playerleave(ws) { //выход игрока из комнаты в любой момент
-        if(Object.keys(this.players).length < 3) { //остаётся один игрок (2 уходит)
-            //остановка отсчёта и всего матча, (если матч идёт кидает в меню, если в лобби, то нельзя начать матч, а обратный таймер отсчёта лобби (60 сек) стоит)
-        } else {
-            //тогда удаляем игрока из списка, и говорим всем об этом (обновляем в игре)
+        if(this.state != 'LOBBY') {
+            this.sendtoroom('DELETEPLAYER', {id: ws.playerid});
+            delete this.players[ws.playerid];
+
+            let bluecount = 0;
+            let redcount = 0;
+
+            for(let id in this.players) {
+                if(this.players[id].team == 'blue') bluecount++;
+                if(this.players[id].team == 'red') redcount++;
+            }
+
+            if(bluecount == 0 || redcount == 0) {
+                for(let id in this.players) {
+                    if(this.players[id].ws) {
+                        this.players[id].ws.close();
+                    }
+                }
+                return;
+            }
         }
 
         if(this.state == 'LOBBY') {
@@ -190,7 +206,7 @@ class Room {
             player.speed = config.speed;
         }
 
-        this.clock = 20;
+        this.clock = 5;
         const buytimer = () => {
             this.clock--;
             if(this.clock <= 0) {
@@ -205,15 +221,92 @@ class Room {
     startround() {
         this.state = 'ROUND';
         this.clock = 0;
-        setInterval(() => {
-            this.clock++;
-        }, 1000);
+
+        const roundtimer = () => {
+            if(this.state = 'ROUND') {
+                this.clock++;
+                setTimeout(roundtimer, 1000);
+            }
+        }
+        setTimeout(roundtimer, 1000);
     }
 
     gameclick(ws, data) {
         let player = this.players[ws.playerid];
         if(player && !player.isdead) {
-            player.gameclick(data);
+            player.targetx = data.targetx;
+            player.targety = data.targety;
+
+            player.animation = 'run';
+
+            let dx = data.targetx - player.x;
+            let dy = data.targety - player.y;
+            let angle = Math.atan2(dy, dx);
+
+            let degrees = angle * (180 / Math.PI);
+            if (degrees < 0) degrees += 360;
+
+            if (degrees >= 337.5 || degrees < 22.5) {
+                player.direction = 'right';
+            } else if (degrees >= 22.5 && degrees < 67.5) {
+                player.direction = 'downright';
+            } else if (degrees >= 67.5 && degrees < 112.5) {
+                player.direction = 'down';
+            } else if (degrees >= 112.5 && degrees < 157.5) {
+                player.direction = 'downleft';
+            } else if (degrees >= 157.5 && degrees < 202.5) {
+                player.direction = 'left';
+            } else if (degrees >= 202.5 && degrees < 247.5) {
+                player.direction = 'upleft';
+            } else if (degrees >= 247.5 && degrees < 292.5) {
+                player.direction = 'up';
+            } else if (degrees >= 292.5 && degrees < 337.5) {
+                player.direction = 'upright';
+            }
+
+            this.checkarcollision(data, player);
+        }
+    }
+
+    checkarcollision(data, player) {
+        for(let id in this.players) {
+            if(id == player.id) continue; //не текущий
+            if(this.players[id].team == player.team) continue; //не в нашей команде
+
+            let thisplayer = {x: player.x, y: player.y, radius: player.classesconfig[player.classid].attackradius}; //позиция игрока И ЕГО РАДИУС АТАКИ
+            let thisenemy = {x: this.players[id].x, y: this.players[id].y, radius: player.PLAYERRADIUS}; //позиция врага и стандартный радиус игрока (не атаки)
+
+            if(player.circlecollision(thisplayer, thisenemy)) { //если этот игрок находится в нашем радиусе атаки
+                if(player.pointcircle({x: data.targetx, y: data.targety}, thisenemy)) { //если мы кликнули на него
+                    player.stop();
+                    this.playerattack(player.id, id);
+                    return;
+                }
+            }
+        }
+    }
+
+    playerattack(playerid, enemyid) {
+        let player = this.players[playerid];
+        let enemy = this.players[enemyid];
+
+        const config = player.classesconfig[player.classid];
+        const thistime = Date.now();
+
+        if(player.mana - config.manacost <= 0) {
+            player.mana = 0;
+        } else {
+            player.mana -= config.manacost;
+        }
+
+        if(thistime - player.lastattacktime < config.cooldown) {
+            return;
+        }
+
+        if(enemy.hp - config.damage <= 0) {
+            enemy.hp = 0;
+        } else {
+            enemy.hp -= config.damage;
         }
     }
 
@@ -269,7 +362,10 @@ class Room {
                 hp: this.players[id].hp,
                 mana: this.players[id].mana,
                 gold: this.players[id].gold,
-                isdead: this.players[id].isdead
+                isdead: this.players[id].isdead,
+                inventory: this.players[id].inventory,
+                direction: this.players[id].direction,
+                animation: this.players[id].animation
             }
         }
 

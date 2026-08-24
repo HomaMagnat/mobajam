@@ -8,7 +8,8 @@ export class Main {
             CHATMESSAGE: (data) => this.chatmessage(data),
             MATCHSTART: (data) => this.matchstart(data),
             GETMYID: (data) => this.getmyid(data),
-            UPDATEROOM: (data) => this.updateroom(data)
+            UPDATEROOM: (data) => this.updateroom(data),
+            DELETEPLAYER: (data) => this.deleteplayer(data)
         };
 
         this.location = [{type: 'tile', texture: 'tile1', x: 3, y: 3, hitbox: true}];
@@ -223,6 +224,10 @@ export class Main {
         this.myid = data.myid;
     }
 
+    deleteplayer(data) {
+        delete this.players[data.id];
+    }
+
     //to server methods (send)
     //GUEST
     joinroom(roomid) {
@@ -292,6 +297,12 @@ export class Main {
                 };
             }
         }
+
+        const minutes = Math.floor(data.clock / 60);
+        const seconds = data.clock % 60;
+
+        console.log(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+        console.log(data.players[this.myid].direction);
     }
 }
 

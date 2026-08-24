@@ -9,9 +9,16 @@ export class Renderer {
         this.VIRTUAL_WIDTH = 1920;
         this.GRID_STEP = 64;
 
+        this.animationtimer = 0;
+        this.ANIMATION_SPEED = 0.15; 
+        this.TOTAL_FRAMES = 8;        
+        this.FRAME_SIZE = 256;
+
         this.textures = { //sprites, images, assets
             'tile1': this.loadimg('src/textures/tile1.png')
         };
+
+        this.preloadplayersprites();
 
         this.camera = { x: 0, y: 0 }; 
 
@@ -23,6 +30,21 @@ export class Renderer {
         let img = new Image();
         img.src = src;
         return img;
+    }
+
+    preloadplayersprites() {
+        const classes = [1, 2, 3, 4, 5];
+        const directions = ['up', 'down', 'left', 'right', 'upleft', 'upright', 'downleft', 'downright'];
+        const animations = ['idle', 'run', 'attack'];
+
+        classes.forEach(c => {
+            directions.forEach(dir => {
+                animations.forEach(anim => {
+                    const key = `class${c}_${dir}_${anim}`;
+                    this.textures[key] = this.loadimg(`src/textures/${key}.png`);
+                });
+            });
+        });
     }
 
     resize() {
@@ -43,6 +65,8 @@ export class Renderer {
     }
 
     renderframe() {
+        this.animationtimer += this.ANIMATION_SPEED;
+
         //стереть со сбросом
         this.ctx.save();
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -66,7 +90,7 @@ export class Renderer {
         for(let id in this.main.players) { //игроки
             let p = this.main.players[id];
             if(!p.isdead) {
-                renderqueue.push({ type: 'player', x: p.x, y: p.y, texture: 'class'+p.classid });
+                renderqueue.push({ type: 'player', x: p.x, y: p.y, texture: 'class'+p.classid+'_'+p.direction+'_'+p.animation });
             }
         }
 
@@ -116,6 +140,28 @@ export class Renderer {
     }
 
     drawplayer(obj, isopos) {
-        this.ctx.drawImage(this.textures['tile1'], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
+        //this.ctx.drawImage(this.textures['tile1'], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
+
+        const spriteSheet = this.textures[obj.texture];
+
+        if (spriteSheet && spriteSheet.complete) {
+            const currentFrameIndex = Math.floor(this.animationtimer % this.TOTAL_FRAMES);
+
+            const sourceX = currentFrameIndex * this.FRAME_SIZE;
+            const sourceY = 0;
+
+            const displayWidth = 128;
+            const displayHeight = 128;
+
+            // 4. Отрисовка с вырезанием (9 аргументов):
+            this.ctx.drawImage(
+                spriteSheet,
+                sourceX, sourceY,             // Откуда вырезать внутри картинки (X, Y)
+                this.FRAME_SIZE, this.FRAME_SIZE, // Какого размера кусок вырезать (256x256)
+                isopos.x - (displayWidth / 2),    // Координата X на экране холста (центрируем)
+                isopos.y - displayHeight + 32,    // Координата Y на экране холста (ставим на ноги)
+                displayWidth, displayHeight       // Размер отрисовки на экране
+            );
+        }
     }
 }
