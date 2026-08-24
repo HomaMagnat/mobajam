@@ -7,7 +7,8 @@ export class Main {
             UPDATELOBBYSTATE: (data) => this.updatelobbystate(data),
             CHATMESSAGE: (data) => this.chatmessage(data),
             MATCHSTART: (data) => this.matchstart(data),
-            GETMYID: (data) => this.getmyid(data)
+            GETMYID: (data) => this.getmyid(data),
+            UPDATEROOM: (data) => this.updateroom(data)
         };
 
         this.location = [{type: 'tile', texture: 'tile1', x: 0, y: 0}, {type: 'tile', texture: 'tile1', x: 1, y: 0}, {type: 'tile', texture: 'tile1', x: 1, y: 1}];
@@ -35,6 +36,8 @@ export class Main {
         this.ui.inputmessage.addEventListener('keydown', this.checkenter);
 
         this.renderer = new Renderer(this);
+
+        this.renderer.canvas.addEventListener('mousedown', (e) => this.gameclick(e));
 
         this.connect();
     }
@@ -85,6 +88,22 @@ export class Main {
     mainloop = () => { //game cycle
         this.renderer.renderframe();
         requestAnimationFrame(this.mainloop);
+    }
+
+    gameclick(e) {
+        e.preventDefault();
+
+        const scale = this.renderer.scalefactor;
+
+        const virtualclickX = e.offsetX / scale;
+        const virtualclickY = e.offsetY / scale;
+
+        const flattarget = this.renderer.isotoflat(virtualclickX, virtualclickY);
+
+        this.serversend('GAMECLICK', {
+            targetx: Math.floor(flattarget.x),
+            targety: Math.floor(flattarget.y)
+        });
     }
 
     reconnect() {
@@ -172,6 +191,8 @@ export class Main {
             if(player.isready == true) {
                 playerslot.querySelector('.readymark').style.display = 'block';
             }
+
+            this.players[playerid] = player; //static sync
         }
 
         if(data.playersnumber < 2) {
@@ -259,6 +280,18 @@ export class Main {
 
     ready() {
         this.serversend('READY', {});
+    }
+
+    //update data logic from server 30 tickrate
+    updateroom(data) {
+        for(const [playerid, serverprops] of Object.entries(data.players)) {
+            if (this.players[playerid]) {
+                this.players[playerid] = {
+                    ...this.players[playerid],
+                    ...serverprops
+                };
+            }
+        }
     }
 }
 

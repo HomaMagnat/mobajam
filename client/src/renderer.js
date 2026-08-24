@@ -50,8 +50,8 @@ export class Renderer {
         this.ctx.restore();
 
         //синхронизация камеры рендера с текущим игроком
-        //this.camera.x = this.main.players[this.main.myid].x;
-        //this.camera.y = this.main.players[this.main.myid].y;
+        this.camera.x = this.main.players[this.main.myid].x;
+        this.camera.y = this.main.players[this.main.myid].y;
 
         let renderqueue = []; //всё что надо отрендерить
 
@@ -98,7 +98,13 @@ export class Renderer {
     }
 
     isotoflat(isoX, isoY) {
+        let x = isoX - (this.VIRTUAL_WIDTH / 2);
+        let y = isoY - (this.virtualHeight / 2);
 
+        let flatX = (x + 2 * y) / 2 + this.camera.x;
+        let flatY = (2 * y - x) / 2 + this.camera.y;
+
+        return { x: flatX, y: flatY };
     }
 
     drawtile(obj, isopos) {
@@ -106,10 +112,10 @@ export class Renderer {
     }
 
     drawsector(obj, isopos) { //сектор залитый тайлами
-
+        
     }
 
     drawplayer(obj, isopos) {
-
+        this.ctx.drawImage(this.textures['tile1'], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
     }
 }

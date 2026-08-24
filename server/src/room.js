@@ -10,7 +10,8 @@ class Room {
         this.routes = {
             SELECTSLOT: (ws, data) => this.selectslot(ws, data),
             SENDMESSAGE: (ws, data) => this.chatmessage(ws, data),
-            READY: (ws) => this.playerready(ws)
+            READY: (ws) => this.playerready(ws),
+            GAMECLICK: (ws, data) => this.gameclick(ws, data)
         };
     }
 
@@ -171,6 +172,14 @@ class Room {
         this.sendmatchstart();
     }
 
+    gameclick(ws, data) {
+        let player = this.players[ws.playerid];
+        if (player && !player.isdead) {
+            player.targetx = data.targetx;
+            player.targety = data.targety;
+        }
+    }
+
     //to client methods (send)
     sendlobbystate() {
         if(this.state != 'LOBBY') return;
@@ -207,6 +216,27 @@ class Room {
             this.sendtoplayer(this.players[id].ws, 'GETMYID', {myid: id});
         }
         this.sendtoroom('MATCHSTART', {});
+    }
+
+    //roomloop
+    roomupdate(dt) {
+        let data = {};
+        data.players = {};
+
+        for(let id in this.players) {
+            this.players[id].playerupdate(dt); //update only every logic dynamic prorps
+
+            data.players[id] = {
+                x: this.players[id].x,
+                y: this.players[id].y,
+                hp: this.players[id].hp,
+                mana: this.players[id].mana,
+                gold: this.players[id].gold,
+                isdead: this.players[id].isdead
+            }
+        }
+
+        this.sendtoroom('UPDATEROOM', data);
     }
 }
 

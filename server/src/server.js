@@ -29,6 +29,8 @@ class Server {
 
         this.httpsserver.listen(port, () => {
         });
+
+        this.startglobaltick();
     }
 
     //ws
@@ -144,6 +146,21 @@ class Server {
         this.rooms[roomid] = new Room(roomid, nickname);
         
         this.joinroom(ws, nickname, roomid);
+    }
+
+    //loop
+    startglobaltick() {
+        const dt = 1 / 30; //30 tickrate deltatime
+    
+        setInterval(() => {
+            for (let id in this.rooms) {
+                let room = this.rooms[id];
+
+                if(room.state != 'LOBBY') {
+                    room.roomupdate(dt);
+                }
+            }
+        }, 1000 / 30);
     }
 }
 
