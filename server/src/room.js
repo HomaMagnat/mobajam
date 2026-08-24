@@ -17,6 +17,8 @@ class Room {
         this.location = [{type: 'tile', texture: 'tile1', x: 3, y: 3, hitbox: true}];
 
         this.clock = 0;
+        this.bluescore = 0;
+        this.redscore = 0;
     }
 
     //ws
@@ -186,10 +188,8 @@ class Room {
 
     startmatch() {
         if(Object.values(this.players).length < 2) return;
-
-        this.startbuyphase();
-
         this.sendmatchstart();
+        this.startbuyphase();
     }
 
     startbuyphase() { //всё начинаем сначала, возрождаем, задаём значения
@@ -289,25 +289,22 @@ class Room {
     playerattack(playerid, enemyid) {
         let player = this.players[playerid];
         let enemy = this.players[enemyid];
-
         const config = player.classesconfig[player.classid];
         const thistime = Date.now();
 
-        if(player.mana - config.manacost <= 0) {
-            player.mana = 0;
-        } else {
-            player.mana -= config.manacost;
-        }
-
-        if(thistime - player.lastattacktime < config.cooldown) {
+        if(thistime - player.lastattacktime < config.cooldown) { //кулдаун не прошёл
+            player.lastattacktime = thistime; //антиспам
             return;
         }
 
-        if(enemy.hp - config.damage <= 0) {
-            enemy.hp = 0;
-        } else {
-            enemy.hp -= config.damage;
+        if(player.mana < config.manacost) { //не хватает маны
+            return;
         }
+
+        player.lastattacktime = thistime;
+
+        player.mana = Math.max(0, player.mana - config.manacost);
+        enemy.hp = Math.max(0, enemy.hp - config.damage);
     }
 
     //to client methods (send)
@@ -356,6 +353,14 @@ class Room {
         for(let id in this.players) {
             this.players[id].playerupdate(dt, this.location, this.players); //update only every logic dynamic prorps
 
+            const thistime = Date.now();
+            let currentcooldown = 0;
+            if(thistime - this.players[id].lastattacktime < this.players[id].classesconfig[this.players[id].classid].cooldown) {
+                currentcooldown = thistime - this.players[id].lastattacktime;
+            } else {
+                currentcooldown = this.players[id].classesconfig[this.players[id].classid].cooldown;
+            }
+
             data.players[id] = {
                 x: this.players[id].x,
                 y: this.players[id].y,
@@ -365,11 +370,15 @@ class Room {
                 isdead: this.players[id].isdead,
                 inventory: this.players[id].inventory,
                 direction: this.players[id].direction,
-                animation: this.players[id].animation
+                animation: this.players[id].animation,
+                config: this.players[id].classesconfig[this.players[id].classid],
+                currentcooldown: currentcooldown
             }
         }
 
         data.clock = this.clock;
+        data.bluescore = this.bluescore;
+        data.redscore = this.redscore;
 
         this.sendtoroom('UPDATEROOM', data);
     }

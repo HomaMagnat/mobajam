@@ -30,6 +30,13 @@ export class Main {
             game: document.querySelector('.game'),
             dwwrapper: document.querySelector('.dwwrapper'),
             alonewindow: document.querySelector('.alonewindow'),
+            clock: document.querySelector('.clock'),
+            bluescore: document.querySelector('.bluescore'),
+            redscore: document.querySelector('.redscore'),
+            myhp: document.querySelector('.myhp'),
+            mymana: document.querySelector('.mymana'),
+            mycooldown: document.querySelector('.mycooldown'),
+            mygold: document.querySelector('.mygold')
         };
 
         window.addEventListener('click', (e) => this.globalclick(e));
@@ -39,6 +46,8 @@ export class Main {
         this.renderer = new Renderer(this);
 
         this.renderer.canvas.addEventListener('mousedown', (e) => this.gameclick(e));
+
+        this.requestid = null;
 
         this.connect();
     }
@@ -83,12 +92,17 @@ export class Main {
         this.ui.dwwrapper.style.display = 'block';
         this.ui.rooms.innerHTML = '';
         this.ui.chat.innerHTML = '';
+        if(this.requestid) {
+            cancelAnimationFrame(this.requestid);
+            this.requestid = null;
+        }
+        this.players = {};
     }
 
     //game
     mainloop = () => { //game cycle
         this.renderer.renderframe();
-        requestAnimationFrame(this.mainloop);
+        this.requestid = requestAnimationFrame(this.mainloop);
     }
 
     gameclick(e) {
@@ -217,7 +231,7 @@ export class Main {
 
     matchstart(data) {
         this.switchscreen('game');
-        requestAnimationFrame(this.mainloop);
+        this.requestid = requestAnimationFrame(this.mainloop);
     }
 
     getmyid(data) {
@@ -301,8 +315,14 @@ export class Main {
         const minutes = Math.floor(data.clock / 60);
         const seconds = data.clock % 60;
 
-        console.log(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
-        console.log(data.players[this.myid].direction);
+        this.ui.clock.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        this.ui.bluescore.textContent = data.bluescore;
+        this.ui.redscore.textContent = data.redscore;
+
+        this.ui.myhp.style.width = ((data.players[this.myid].hp / data.players[this.myid].config.hp) * 100) + '%';
+        this.ui.mymana.style.width = ((data.players[this.myid].mana / data.players[this.myid].config.mana) * 100) + '%';
+        this.ui.mycooldown.style.width = ((data.players[this.myid].currentcooldown / data.players[this.myid].config.cooldown) * 100) + '%';
+        this.ui.mygold.style.textContent = data.players[this.myid].gold;
     }
 }
 

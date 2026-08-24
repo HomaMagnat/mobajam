@@ -15,7 +15,8 @@ export class Renderer {
         this.FRAME_SIZE = 256;
 
         this.textures = { //sprites, images, assets
-            'tile1': this.loadimg('src/textures/tile1.png')
+            'tile1': this.loadimg('src/textures/tile1.png'),
+            'test': this.loadimg('src/textures/test.png')
         };
 
         this.preloadplayersprites();
@@ -74,8 +75,10 @@ export class Renderer {
         this.ctx.restore();
 
         //синхронизация камеры рендера с текущим игроком
-        this.camera.x = this.main.players[this.main.myid].x;
-        this.camera.y = this.main.players[this.main.myid].y;
+        if(this.main.players[this.main.myid]) {
+            this.camera.x = this.main.players[this.main.myid].x;
+            this.camera.y = this.main.players[this.main.myid].y;
+        }
 
         let renderqueue = []; //всё что надо отрендерить
 
@@ -140,9 +143,9 @@ export class Renderer {
     }
 
     drawplayer(obj, isopos) {
-        //this.ctx.drawImage(this.textures['tile1'], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
+        this.ctx.drawImage(this.textures['tile1'], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
 
-        const spriteSheet = this.textures[obj.texture];
+        const spriteSheet = this.textures['test']; //obj.texture
 
         if (spriteSheet && spriteSheet.complete) {
             const currentFrameIndex = Math.floor(this.animationtimer % this.TOTAL_FRAMES);
@@ -150,17 +153,17 @@ export class Renderer {
             const sourceX = currentFrameIndex * this.FRAME_SIZE;
             const sourceY = 0;
 
-            const displayWidth = 128;
-            const displayHeight = 128;
+            const displayWidth = 256;
+            const displayHeight = 256;
 
             // 4. Отрисовка с вырезанием (9 аргументов):
             this.ctx.drawImage(
                 spriteSheet,
-                sourceX, sourceY,             // Откуда вырезать внутри картинки (X, Y)
-                this.FRAME_SIZE, this.FRAME_SIZE, // Какого размера кусок вырезать (256x256)
-                isopos.x - (displayWidth / 2),    // Координата X на экране холста (центрируем)
-                isopos.y - displayHeight + 32,    // Координата Y на экране холста (ставим на ноги)
-                displayWidth, displayHeight       // Размер отрисовки на экране
+                sourceX, sourceY,
+                this.FRAME_SIZE, this.FRAME_SIZE,
+                isopos.x - (displayWidth / 2),
+                isopos.y - displayHeight + 92,
+                displayWidth, displayHeight
             );
         }
     }

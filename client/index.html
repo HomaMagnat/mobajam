@@ -68,7 +68,7 @@ padding: 0;
 height: 100%;
 width: 100%;
 overflow: hidden;
-background: url(https://media.discordapp.net/attachments/1234830687199035442/1541170517443215490/image.png?ex=6a8c9e64&is=6a8b4ce4&hm=a879f903f901550d5348af6abcfa4cce055aebee69134d1ab0cd2b6d1ec00e90&=&format=webp&quality=lossless) no-repeat;
+background: url(https://media.discordapp.net/attachments/1234830687199035442/1541170517443215490/image.png?ex=6a8d4724&is=6a8bf5a4&hm=df9fe6f3ed9c07d7dfe035538642ed4c578b6f38d19c75d25f315c645088ba2d&format=webp&quality=lossless&) no-repeat;
 background-size: cover;
 background-position: right center;
 color: white;
@@ -739,6 +739,107 @@ background: linear-gradient(var(--border), var(--border2));
 border-top: 2px solid var(--borderlight);
 border-bottom: 2px solid var(--borderdark);
 }
+
+.gameui {
+position: absolute;
+width: 100%;
+height: 100%;
+pointer-events: none;
+}
+
+.topui {
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+margin: auto;
+width: 400px;
+}
+
+.bottomui {
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+margin: auto;
+width: 500px;
+}
+
+.bluescore {
+display: inline-block;
+width: 50px;
+height: 50px;
+font-weight: bold;
+font-size: 30px;
+text-align: center;
+line-height: 50px;
+background: linear-gradient(rgb(31, 50, 158), rgb(22, 32, 75));
+border-top: 2px solid rgb(45, 62, 161);
+border-bottom: 2px solid rgb(17, 24, 65);
+clip-path: polygon(0px 0, calc(100% - 10px) 0, 100% 0px, 100% calc(100% - 10px), calc(100% - 0px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+}
+.redscore {
+display: inline-block;
+width: 50px;
+height: 50px;
+font-weight: bold;
+font-size: 30px;
+text-align: center;
+line-height: 50px;
+background: linear-gradient(rgb(145, 24, 24), rgb(104, 14, 14));
+border-top: 2px solid rgb(173, 42, 42);
+border-bottom: 2px solid rgb(58, 14, 14);
+clip-path: polygon(0px 0, calc(100% - 10px) 0, 100% 0px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 0px), 0 10px);
+}
+.clock {
+display: inline-block;
+width: calc(100% - 100px);
+height: 50px;
+font-weight: bold;
+font-size: 30px;
+text-align: center;
+line-height: 50px;
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+
+.cooldownbox {
+width: 100%;
+height: 10px;
+padding: 5px 5px 0px 5px;
+background: var(--main);
+clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 10px), calc(100% - 0px) 100%, 0px 100%, 0 calc(100% - 10px), 0 5px);
+}
+.mycooldown {
+width: 100%;
+height: 10px;
+background: linear-gradient(rgb(114, 114, 114), rgb(65, 65, 65));
+}
+
+.hpbox {
+width: 100%;
+height: 30px;
+padding: 5px;
+background: var(--main);
+}
+.myhp {
+width: 100%;
+height: 30px;
+background: linear-gradient(rgb(196, 9, 9), rgb(75, 4, 4));
+}
+
+.manabox {
+width: 100%;
+height: 20px;
+padding: 0px 5px 5px 5px;
+background: var(--main);
+}
+.mymana {
+width: 100%;
+height: 20px;
+background: linear-gradient(rgb(14, 14, 175), rgb(6, 6, 77));
+}
 </style>
 
 <body>
@@ -859,6 +960,21 @@ border-bottom: 2px solid var(--borderdark);
     </div>
 
     <div class="game" style="display: none;">
+        <div class="gameui">
+            <div class="topui">
+                <div class="bluescore"></div><div class="clock"></div><div class="redscore"></div>
+            </div>
+            <div class="bottomui">
+                <div class="cooldownbox"><div class="mycooldown"></div></div>
+                <div class="inventorybox"><div class="inventoryslot" id="islot1"></div><div class="inventoryslot" id="islot2"></div><div class="inventoryslot" id="islot3"></div><div class="inventoryslot" id="islot4"></div><div class="inventoryslot" id="islot5"></div></div>
+                <div class="hpbox"><div class="myhp"></div></div>
+                <div class="manabox"><div class="mymana"></div></div>
+            </div>
+            <div class="shop" style="display: none;">
+                <div class="buyitem"><div class="itemname"></div><div class="itemprice"></div></div>
+            </div>
+            <div class="goldbox"><div class="mygold"></div></div>
+        </div>
         <canvas id="canvas"></canvas>
     </div>
     

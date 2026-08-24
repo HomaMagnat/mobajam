@@ -26,11 +26,11 @@ class Player {
         };
 
         this.classesconfig = { //cooldown - per attack ms
-            1: {x: 100, y: 0, hp: 300, mana: 300, speed: 500, attackradius: 128, cooldown: 100, damage: 30, manacost: 20, hpregen: 10,},
-            2: {x: 0, y: 100, hp: 300, mana: 300, speed: 300, attackradius: 128, cooldown: 100, damage: 30, manacost: 20},
-            3: {x: 0, y: 0, hp: 300, mana: 300, speed: 300, attackradius: 128, cooldown: 100, damage: 30, manacost: 20},
-            4: {x: 0, y: 0, hp: 300, mana: 300, speed: 300, attackradius: 128, cooldown: 100, damage: 30, manacost: 20},
-            5: {x: 0, y: 0, hp: 300, mana: 300, speed: 300, attackradius: 128, cooldown: 100, damage: 30, manacost: 20}
+            1: {x: 100, y: 0, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20},
+            2: {x: 0, y: 100, hp: 800, mana: 800, speed: 300, attackradius: 256, cooldown: 2000, damage: 30, manacost: 20},
+            3: {x: 0, y: 0, hp: 800, mana: 800, speed: 300, attackradius: 128, cooldown: 1000, damage: 30, manacost: 20},
+            4: {x: 0, y: 0, hp: 800, mana: 800, speed: 300, attackradius: 128, cooldown: 1000, damage: 30, manacost: 20},
+            5: {x: 0, y: 0, hp: 800, mana: 800, speed: 300, attackradius: 128, cooldown: 1000, damage: 30, manacost: 20}
         };
 
         this.lastattacktime = 0;
