@@ -891,6 +891,77 @@ position: absolute;
 bottom: 110px;
 right: 10px;
 }
+
+.blueround {
+position: absolute;
+top: 200px;
+text-align: center;
+font-size: 40px;
+text-shadow: 2px 2px 2px black;
+left: 0;
+right: 0;
+margin: auto;
+width: 600px;
+font-weight: 500;
+padding: 10px;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+background: linear-gradient(rgb(31, 50, 158), rgb(22, 32, 75));
+border-top: 2px solid rgb(45, 62, 161);
+border-bottom: 2px solid rgb(17, 24, 65);
+}
+.redround {
+position: absolute;
+top: 200px;
+text-align: center;
+font-size: 40px;
+text-shadow: 2px 2px 2px black;
+left: 0;
+right: 0;
+margin: auto;
+width: 600px;
+font-weight: 500;
+padding: 10px;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+background: linear-gradient(rgb(145, 24, 24), rgb(104, 14, 14));
+border-top: 2px solid rgb(173, 42, 42);
+border-bottom: 2px solid rgb(58, 14, 14);
+}
+.bluegame {
+position: absolute;
+top: 200px;
+text-align: center;
+font-size: 60px;
+text-shadow: 2px 2px 2px black;
+left: 0;
+right: 0;
+margin: auto;
+width: 800px;
+font-weight: 500;
+padding: 10px;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+background: linear-gradient(rgb(31, 50, 158), rgb(22, 32, 75));
+border-top: 2px solid rgb(45, 62, 161);
+border-bottom: 2px solid rgb(17, 24, 65);
+cursor: pointer;
+}
+.redgame {
+position: absolute;
+top: 200px;
+text-align: center;
+font-size: 60px;
+text-shadow: 2px 2px 2px black;
+left: 0;
+right: 0;
+margin: auto;
+width: 800px;
+font-weight: 500;
+padding: 10px;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+background: linear-gradient(rgb(145, 24, 24), rgb(104, 14, 14));
+border-top: 2px solid rgb(173, 42, 42);
+border-bottom: 2px solid rgb(58, 14, 14);
+cursor: pointer;
+}
 </style>
 
 <body>
@@ -1024,14 +1095,18 @@ right: 10px;
             </div>
             <div class="goldbox"><div class="mygold"></div></div>
             <div class="youdied" style="display: none;">Вас убили. Дождитесь следующего раунда</div>
+            <div class="blueround" style="display: none;">Синие выиграли раунд</div>
+            <div class="redround" style="display: none;">Красные выиграли раунд</div>
         </div>
         <div class="shop" style="display: none;">
             <div class="buyitem"><div class="itemname">Меч</div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
             <div class="buyitem"><div class="itemname">Щит</div><div class="itemprice" data-action="buy" data-id="shield">500</div></div>
-            <div class="buyitem"><div class="itemname"></div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
-            <div class="buyitem"><div class="itemname">Зелье исцеления</div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
+            <div class="buyitem"><div class="itemname">Ботинки</div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
+            <div class="buyitem"><div class="itemname">Исцеление</div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
             <div class="buyitem"><div class="itemname"></div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
         </div>
+        <div class="bluegame" style="display: none;" data-action="hidewin">СИНИЕ ОДЕРЖАЛИ ПОБЕДУ</div>
+        <div class="redgame" style="display: none;" data-action="hidewin">КРАСНЫЕ ОДЕРЖАЛИ ПОБЕДУ</div>
         <canvas id="canvas"></canvas>
     </div>
     

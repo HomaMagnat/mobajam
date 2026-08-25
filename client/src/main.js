@@ -11,7 +11,9 @@ export class Main {
             UPDATEROOM: (data) => this.updateroom(data),
             DELETEPLAYER: (data) => this.deleteplayer(data),
             BUYPHASE: (data) => this.buyphase(),
-            ROUND: (data) => this.round()
+            ROUND: (data) => this.round(),
+            ROUNDWIN: (data) => this.roundwin(data),
+            GAMEWIN: (data) => this.gamewin(data)
         };
 
         this.location = [{type: 'tile', texture: 'tile1', x: 3, y: 3, hitbox: true}];
@@ -44,7 +46,11 @@ export class Main {
             mygold: document.querySelector('.mygold'),
             tophint: document.querySelector('.tophint'),
             shop: document.querySelector('.shop'),
-            youdied: document.querySelector('.youdied')
+            youdied: document.querySelector('.youdied'),
+            blueround: document.querySelector('.blueround'),
+            redround: document.querySelector('.redround'),
+            bluegame: document.querySelector('.bluegame'),
+            redgame: document.querySelector('.redgame'),
         };
 
         window.addEventListener('click', (e) => this.globalclick(e));
@@ -260,6 +266,36 @@ export class Main {
     round() {
         this.ui.tophint.textContent = 'РАУНД';
         this.ui.shop.style.display = 'none';
+    }
+
+    roundwin(data) {
+        if(data.team == 'blue') {
+            this.ui.blueround.style.display = 'block';
+            setTimeout(() => {
+                this.ui.blueround.style.display = 'none';
+            }, 4000);
+        }
+        if(data.team == 'red') {
+            this.ui.redround.style.display = 'block';
+            setTimeout(() => {
+                this.ui.redround.style.display = 'none';
+            }, 4000);
+        }
+    }
+
+    gamewin(data) {
+        if(data.team == 'blue') {
+            this.ui.bluegame.style.display = 'block';
+        }
+        if(data.team == 'red') {
+            this.ui.redgame.style.display = 'block';
+        }
+        this.ws.close();
+    }
+
+    hidewin() {
+        this.ui.bluegame.style.display = 'none';
+        this.ui.bluegame.style.display = 'none';
     }
 
     //to server methods (send)

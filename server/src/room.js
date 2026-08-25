@@ -424,19 +424,56 @@ class Room {
 
         this.sendtoroom('UPDATEROOM', data);
 
+        if(this.ticksec > 29) { //секунда
+            this.ticksec = 0;
+        }
+
         if(this.state == 'ROUND') {
             //проверка на победу в раунде
+            if(this.towers.blue.throne.hp == 0) { //победа красных в раунде (по трону)
+                this.redscore++;
+                this.startbuyphase();
+                this.sendtoroom('ROUNDWIN', {team: 'red'});
+                return;
+            }
+
+            if(this.towers.red.throne.hp == 0) { //победа синих в раунде (по трону)
+                this.bluescore++;
+                this.startbuyphase();
+                this.sendtoroom('ROUNDWIN', {team: 'blue'});
+                return;
+            }
+
+            //если команда померла сразу делаем победу чтобы не бить трон
+            let bluecount = Object.values(this.players).filter(p => p.team === 'blue' && p.isdead == false).length;
+            let redcount = Object.values(this.players).filter(p => p.team === 'red'  && p.isdead == false).length;
+
+            if(bluecount == 0) {
+                this.redscore++;
+                this.startbuyphase();
+                this.sendtoroom('ROUNDWIN', {team: 'red'});
+                return;
+            }
+
+            if(redcount == 0) {
+                this.bluescore++;
+                this.startbuyphase();
+                this.sendtoroom('ROUNDWIN', {team: 'blue'});
+                return;
+            }
+
             //проверка на победу в игре
             if(this.bluescore == 4) {
                 //победа синих
+                this.sendtoroom('GAMEWIN', {team: 'blue'});
+                return;
             }
             if(this.redscore == 4) {
                 //победа красных
+                this.sendtoroom('GAMEWIN', {team: 'red'});
+                return;
+                
             }
-        }
-
-        if(this.ticksec > 29) { //секунда
-            this.ticksec = 0;
         }
     }
 }

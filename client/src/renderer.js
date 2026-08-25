@@ -10,7 +10,7 @@ export class Renderer {
         this.GRID_STEP = 64;
 
         this.animationtimer = 0;
-        this.ANIMATION_SPEED = 0.15; 
+        this.ANIMATION_SPEED = 0.15;
         this.TOTAL_FRAMES = 8;        
         this.FRAME_SIZE = 256;
 
