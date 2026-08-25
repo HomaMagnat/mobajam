@@ -38,6 +38,8 @@ export class Main {
             redscore: document.querySelector('.redscore'),
             myhp: document.querySelector('.myhp'),
             mymana: document.querySelector('.mymana'),
+            myhpvalue: document.querySelector('.myhpvalue'),
+            mymanavalue: document.querySelector('.mymanavalue'),
             mycooldown: document.querySelector('.mycooldown'),
             mygold: document.querySelector('.mygold'),
             tophint: document.querySelector('.tophint'),
@@ -344,10 +346,13 @@ export class Main {
         this.ui.mycooldown.style.width = ((data.players[this.myid].currentcooldown / data.players[this.myid].config.cooldown) * 100) + '%';
         this.ui.mygold.textContent = data.players[this.myid].gold;
 
-        if(data.players[this.myid].isdied) {
+        this.ui.myhpvalue.textContent = data.players[this.myid].hp + ' / ' + data.players[this.myid].config.hp;
+        this.ui.mymanavalue.textContent = data.players[this.myid].mana + ' / ' + data.players[this.myid].config.mana;
+
+        if(data.players[this.myid].isdead) {
             this.ui.youdied.style.display = 'block';
         }
     }
 }
 
-let main = new Main();
+let main = new Main(); //полоски

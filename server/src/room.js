@@ -13,6 +13,7 @@ class Room {
             READY: (ws) => this.playerready(ws),
             GAMECLICK: (ws, data) => this.gameclick(ws, data)
         };
+        this.ticksec = 0;
 
         this.location = [{type: 'tile', texture: 'tile1', x: 3, y: 3, hitbox: true}];
         this.towers = {
@@ -245,7 +246,7 @@ class Room {
         this.clock = 0;
 
         const roundtimer = () => {
-            if(this.state = 'ROUND') {
+            if(this.state == 'ROUND') {
                 this.clock++;
                 setTimeout(roundtimer, 1000);
             }
@@ -332,8 +333,8 @@ class Room {
 
         player.mana = Math.max(0, player.mana - config.manacost);
         enemy.hp = Math.max(0, enemy.hp - config.damage);
-        if(enemy.hp == 0) {
-            player.gold += 800;
+        if(enemy.hp == 0) { //единственный способ умереть
+            player.gold += 500;
             enemy.isdead = true;
             enemy.inventory = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
         }
@@ -379,6 +380,8 @@ class Room {
 
     //roomloop
     roomupdate(dt) {
+        this.ticksec++;
+
         let data = {};
         data.players = {};
         data.towers = this.towers;
@@ -392,6 +395,12 @@ class Room {
                 currentcooldown = thistime - this.players[id].lastattacktime;
             } else {
                 currentcooldown = this.players[id].classesconfig[this.players[id].classid].cooldown;
+            }
+
+            if(this.ticksec > 29 && this.state == 'ROUND' && this.players[id].isdead == false) {
+                this.players[id].hp = Math.min(this.players[id].classesconfig[this.players[id].classid].hp, this.players[id].hp + 2);
+                this.players[id].mana = Math.min(this.players[id].classesconfig[this.players[id].classid].mana, this.players[id].mana + 2);
+                this.players[id].gold += 1;
             }
 
             data.players[id] = {
@@ -418,6 +427,16 @@ class Room {
         if(this.state == 'ROUND') {
             //проверка на победу в раунде
             //проверка на победу в игре
+            if(this.bluescore == 4) {
+                //победа синих
+            }
+            if(this.redscore == 4) {
+                //победа красных
+            }
+        }
+
+        if(this.ticksec > 29) { //секунда
+            this.ticksec = 0;
         }
     }
 }

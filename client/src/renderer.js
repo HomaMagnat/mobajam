@@ -96,11 +96,16 @@ export class Renderer {
         for(let id in this.main.players) { //игроки
             let p = this.main.players[id];
             if(!p.isdead) {
-                renderqueue.push({ type: 'player', x: p.x, y: p.y, texture: 'class'+p.classid+'_'+p.direction+'_'+p.animation+'_'+p.team });
+                renderqueue.push({type: 'player', texture: 'class'+p.classid+'_'+p.direction+'_'+p.animation+'_'+p.team, ...p});
             }
         }
 
-        renderqueue.sort((a, b) => a.y - b.y); //сортировка для правильных слоёв
+        renderqueue.sort((a, b) => {
+            if(a.type === 'tile' && b.type !== 'tile') return -1;
+            if(b.type === 'tile' && a.type !== 'tile') return 1;
+
+            return a.y - b.y;
+        }); //сортировка для правильных слоёв
 
         renderqueue.forEach(obj => { //отрисовка каждого объекта
             let isopos = this.flattoiso(obj.x, obj.y); //преобразование плоских координат в изометрические
@@ -150,7 +155,7 @@ export class Renderer {
 
         const spriteSheet = this.textures['test']; //obj.texture
 
-        if (spriteSheet && spriteSheet.complete) {
+        if(spriteSheet && spriteSheet.complete) {
             const currentFrameIndex = Math.floor(this.animationtimer % this.TOTAL_FRAMES);
 
             const sourceX = currentFrameIndex * this.FRAME_SIZE;
@@ -159,7 +164,6 @@ export class Renderer {
             const displayWidth = 256;
             const displayHeight = 256;
 
-            // 4. Отрисовка с вырезанием (9 аргументов):
             this.ctx.drawImage(
                 spriteSheet,
                 sourceX, sourceY,
@@ -168,6 +172,34 @@ export class Renderer {
                 isopos.y - displayHeight + 92,
                 displayWidth, displayHeight
             );
+
+            this.ctx.font = 'bold 24px helvetica';
+            this.ctx.fillStyle = 'white';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(obj.nickname, isopos.x, isopos.y - 164); //nickname
+
+            const barwidth = 200;
+            const barheight = 20;
+            const padding = 4;
+
+            if(obj.config) {
+                this.ctx.fillStyle = 'black'; //mana bar
+                this.ctx.fillRect(isopos.x - (barwidth / 2) - padding, isopos.y - 128 - padding, barwidth + padding*2, barheight + padding);
+                this.ctx.fillStyle = 'blue';
+                this.ctx.fillRect(isopos.x - (barwidth / 2), isopos.y - 132, ((obj.mana / obj.config.mana) * 200), barheight);
+
+                this.ctx.fillStyle = 'black'; //hp bar
+                this.ctx.fillRect(isopos.x - (barwidth / 2) - padding, isopos.y - 132 - barheight - padding, barwidth + padding*2, barheight + padding*2);
+                this.ctx.fillStyle = 'red';
+                this.ctx.fillRect(isopos.x - (barwidth / 2), isopos.y - 132 - barheight, ((obj.hp / obj.config.hp) * 200), barheight);
+
+                this.ctx.font = 'bold 16px helvetica';
+                this.ctx.fillStyle = 'white';
+                this.ctx.fillText(obj.mana + ' / ' + obj.config.mana, isopos.x, isopos.y - 113);
+
+                this.ctx.font = 'bold 18px helvetica';
+                this.ctx.fillText(obj.hp + ' / ' + obj.config.hp, isopos.x, isopos.y - 136);
+            }
         }
     }
 }
