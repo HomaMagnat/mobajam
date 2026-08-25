@@ -11,25 +11,28 @@ class Room {
             SELECTSLOT: (ws, data) => this.selectslot(ws, data),
             SENDMESSAGE: (ws, data) => this.chatmessage(ws, data),
             READY: (ws) => this.playerready(ws),
-            GAMECLICK: (ws, data) => this.gameclick(ws, data)
+            GAMECLICK: (ws, data) => this.gameclick(ws, data),
+            BUY: (ws, data) => this.playerbuy(ws, data)
         };
         this.ticksec = 0;
 
-        this.location = [{type: 'tile', texture: 'tile1', x: 3, y: 3, hitbox: true}];
-        this.towers = {
+        this.location = [{type: 'sector', texture: 'tile1', x: 0, y: 0, w: 64, h: 64, hitbox: false}];
+
+        this.towerscopy = JSON.stringify({
             blue: {
-                mid: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
-                top: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
-                bottom: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
-                throne: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30}
+                mid: {x: 16*64, y: 16*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                top: {x: 32*64, y: 2*256, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                bottom: {x: 2*256, y: 32*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                throne: {x: 58*64, y: 58*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0}
             },
             red: {
-                mid: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
-                top: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
-                bottom: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30},
-                throne: {x: 100, y: 100, hp: 1000, attackradius: 256, cooldown: 1000, damage: 30}
+                mid: {x: 5*256, y: 5*256, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                top: {x: 6*256, y: 6*256, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                bottom: {x: 7*256, y: 7*256, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                throne: {x: 8*256, y: 8*256, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0}
             }
-        };
+        });
+        this.towers = JSON.parse(this.towerscopy);
 
         this.clock = 0;
         this.bluescore = 0;
@@ -215,19 +218,26 @@ class Room {
 
     startbuyphase() { //всё начинаем сначала, возрождаем, задаём значения
         this.state = 'BUYPHASE';
+
+        this.towers = JSON.parse(this.towerscopy);
         
         for(let id in this.players) {
             const player = this.players[id];
             const config = player.classesconfig[player.classid];
             player.isdead = false;
-            player.x = config.x;
-            player.y = config.y;
+            if(player.team == 'blue') {
+                player.x = 64*64 - config.x;
+                player.y = 64*64 - config.y;
+            } else {
+                player.x = config.x;
+                player.y = config.y;
+            }
             player.hp = config.hp;
             player.mana = config.mana;
             player.speed = config.speed;
         }
 
-        this.clock = 10;
+        this.clock = 1;
         const buytimer = () => {
             this.clock--;
             if(this.clock <= 0) {
@@ -254,6 +264,22 @@ class Room {
         setTimeout(roundtimer, 1000);
 
         this.sendtoroom('ROUND', {});
+    }
+
+    playerbuy(ws, data) {
+        if(this.state == 'BUYPHASE') {
+            const prices = {
+                1: 1000,
+                2: 1500,
+                3: 2000,
+                4: 1500,
+                5: 1500
+            };
+            if(this.players[ws.playerid].gold >= prices[data.item] && this.players[ws.playerid].inventory[data.item] == false) {
+                this.players[ws.playerid].gold -= prices[data.item];
+                this.players[ws.playerid].inventory[data.item] = true;
+            }
+        }
     }
 
     gameclick(ws, data) {
@@ -292,6 +318,7 @@ class Room {
             }
 
             this.checkarcollision(data, player);
+            this.checktwcollision(data, player);
         }
     }
 
@@ -314,6 +341,65 @@ class Room {
         }
     }
 
+    checktwcollision(data, player) {
+        let antiteam = '';
+        if(player.team == 'blue') { antiteam = 'red'; }
+        if(player.team == 'red') { antiteam = 'blue'; }
+
+        for(let tower in this.towers[antiteam]) {
+            if(this.towers[antiteam][tower].hp == 0) continue;
+
+            let thisplayer = {x: player.x, y: player.y, radius: player.classesconfig[player.classid].attackradius}; //позиция игрока И ЕГО РАДИУС АТАКИ
+            let thistower = {x: this.towers[antiteam][tower].x, y: this.towers[antiteam][tower].y, radius: 128};
+
+            if(player.circlecollision(thisplayer, thistower)) { //если эта башня находится в нашем радиусе атаки
+                if(player.pointcircle({x: data.targetx, y: data.targety}, thistower)) { //если мы кликнули на неё
+                    player.stop();
+                    this.towerattack(player.id, antiteam, tower);
+                    return;
+                }
+            }
+        }
+    }
+
+    towerattack(playerid, antiteam, tower) {
+        let player = this.players[playerid];
+        let thistower = this.towers[antiteam][tower];
+        const config = player.classesconfig[player.classid];
+        const thistime = Date.now();
+
+        if(thistime - player.lastattacktime < config.cooldown) { //кулдаун не прошёл
+            player.lastattacktime = thistime; //антиспам
+            return;
+        }
+
+        if(player.mana < config.manacost) { //не хватает маны
+            return;
+        }
+
+        if(tower == 'throne') {
+            let deadtowers = 0;
+            for(let twr in this.towers[antiteam]) {
+                if(this.towers[antiteam][twr].hp == 0 && twr != 'throne') {
+                    deadtowers++;
+                }
+            }
+            if(deadtowers == 0) {
+                return;
+            }
+        }
+
+        player.animation = 'attack';
+
+        player.lastattacktime = thistime;
+
+        player.mana = Math.max(0, player.mana - config.manacost);
+        thistower.hp = Math.max(0, thistower.hp - config.damage);
+        if(thistower.hp == 0) {
+            player.gold += 500;
+        }
+    }
+
     playerattack(playerid, enemyid) {
         let player = this.players[playerid];
         let enemy = this.players[enemyid];
@@ -329,6 +415,8 @@ class Room {
             return;
         }
 
+        player.animation = 'attack';
+
         player.lastattacktime = thistime;
 
         player.mana = Math.max(0, player.mana - config.manacost);
@@ -336,7 +424,42 @@ class Room {
         if(enemy.hp == 0) { //единственный способ умереть
             player.gold += 500;
             enemy.isdead = true;
-            enemy.inventory = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+            enemy.inventory = {
+                1: false,
+                2: false,
+                3: false,
+                4: false,
+                5: false
+            };
+        }
+    }
+
+    towerautoattack() {
+        const thistime = Date.now();
+
+        for (let towerteam in this.towers) {
+            for (let towername in this.towers[towerteam]) {
+                let tower = this.towers[towerteam][towername];
+                
+                if(tower.hp <= 0) continue;
+
+                if(thistime - (tower.lastattacktime) < tower.cooldown) continue;
+
+                for(let pid in this.players) {
+                    let p = this.players[pid];
+
+                    if(!p.isdead && p.team !== towerteam) {
+                        let thistower = {x: tower.x, y: tower.y, radius: tower.attackradius};
+                        let thisplayer = {x: p.x, y: p.y, radius: p.PLAYERRADIUS};
+                        if(p.circlecollision(thistower, thisplayer)) {
+                            this.players[pid].hp = Math.max(100, this.players[pid].hp - tower.damage);
+                            tower.lastattacktime = thistime;
+
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -364,6 +487,8 @@ class Room {
             };
         }
 
+        data.location = this.location;
+
         this.sendtoroom('UPDATELOBBYSTATE', data);
     }
 
@@ -378,16 +503,26 @@ class Room {
         this.sendtoroom('MATCHSTART', {});
     }
 
+    teamgold(team) {
+        for(let id in this.players) {
+            if(this.players[id].team == team) {
+                this.players[id].gold += 500;
+            }
+        }
+    }
+
     //roomloop
     roomupdate(dt) {
         this.ticksec++;
+
+        this.towerautoattack();
 
         let data = {};
         data.players = {};
         data.towers = this.towers;
 
         for(let id in this.players) {
-            this.players[id].playerupdate(dt, this.location, this.players); //update only every logic dynamic prorps
+            this.players[id].playerupdate(dt, this.location, this.players, this.towers); //update only every logic dynamic prorps
 
             const thistime = Date.now();
             let currentcooldown = 0;
@@ -395,6 +530,9 @@ class Room {
                 currentcooldown = thistime - this.players[id].lastattacktime;
             } else {
                 currentcooldown = this.players[id].classesconfig[this.players[id].classid].cooldown;
+                if(this.players[id].animation == 'attack') {
+                    this.players[id].animation = 'idle';
+                }
             }
 
             if(this.ticksec > 29 && this.state == 'ROUND' && this.players[id].isdead == false) {
@@ -434,6 +572,7 @@ class Room {
                 this.redscore++;
                 this.startbuyphase();
                 this.sendtoroom('ROUNDWIN', {team: 'red'});
+                this.teamgold('blue');
                 return;
             }
 
@@ -441,6 +580,7 @@ class Room {
                 this.bluescore++;
                 this.startbuyphase();
                 this.sendtoroom('ROUNDWIN', {team: 'blue'});
+                this.teamgold('red');
                 return;
             }
 
@@ -452,6 +592,7 @@ class Room {
                 this.redscore++;
                 this.startbuyphase();
                 this.sendtoroom('ROUNDWIN', {team: 'red'});
+                this.teamgold('blue');
                 return;
             }
 
@@ -459,6 +600,7 @@ class Room {
                 this.bluescore++;
                 this.startbuyphase();
                 this.sendtoroom('ROUNDWIN', {team: 'blue'});
+                this.teamgold('red');
                 return;
             }
 

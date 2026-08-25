@@ -11,10 +11,6 @@
 </head>
 
 <style>
-* {
-    /*outline: 1px solid red;*/
-}
-
 :root {
 --border: #000000; /* gradient border bg */
 --border2: #000000; /* gradient border second bg */
@@ -294,8 +290,13 @@ transition: none !important;
 
 .playerpreview {
 position: absolute;
-right: 29%;
-bottom: 40%;
+  right: 30%;
+  bottom: 40%;
+  background-image: url(https://mobajam.hmxstudio.ru/src/textures/red.png);
+  width: 512px;
+  height: 512px;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .btwrapper {
@@ -514,6 +515,7 @@ vertical-align: bottom;
 cursor: pointer;
 font-size: 32px;
 font-weight: bold;
+text-align: center;
 
 background: linear-gradient(var(--border), var(--border2));
 border-top: 2px solid var(--borderlight);
@@ -602,10 +604,17 @@ border-top: 2px solid #40439c;
 border-bottom: 2px solid #0c0c18;
 }
 
-.avatar {
+.avatarblue {
 height: 100%;
 aspect-ratio: 1 / 1;
-background: url(https://media.discordapp.net/attachments/1246825599713148992/1541049579976400976/image.png?ex=6a8c2dc3&is=6a8adc43&hm=6e03c05f319860dcd97a5335200fb7845b04765c24105976a7e4f54a34d16388&=&format=webp&quality=lossless);
+background: url(https://mobajam.hmxstudio.ru/src/textures/herologoblue.png);
+background-size: contain;
+display: inline-block;
+}
+.avatarred {
+height: 100%;
+aspect-ratio: 1 / 1;
+background: url(https://mobajam.hmxstudio.ru/src/textures/herologored.png);
 background-size: contain;
 display: inline-block;
 }
@@ -867,6 +876,13 @@ right: 0;
 padding: 5px;
 height: 30px;
 width: 100px;
+background: linear-gradient(rgb(146, 123, 18), rgb(107, 85, 12));
+border-top: 2px solid rgb(179, 156, 28);
+border-bottom: 2px solid rgb(63, 50, 16);
+text-align: center;
+font-size: 28px;
+font-weight: 500;
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 0px, 100% calc(100% - 10px), calc(100% - 0px) 100%, 10px 100%, 0 calc(100% - 0px), 0 10px);
 }
 
 .tophint {
@@ -884,12 +900,6 @@ font-size: 20px;
 text-shadow: 2px 2px 2px black;
 left: 0;
 right: 0;
-}
-
-.shop {
-position: absolute;
-bottom: 110px;
-right: 10px;
 }
 
 .blueround {
@@ -962,6 +972,67 @@ border-top: 2px solid rgb(173, 42, 42);
 border-bottom: 2px solid rgb(58, 14, 14);
 cursor: pointer;
 }
+
+.gamechat {
+position: absolute;
+bottom: 10px;
+left: 10px;
+width: 400px;
+height: 200px;
+filter: drop-shadow(0px 0px 5px #00000094);
+}
+
+.shop {
+position: absolute;
+bottom: 110px;
+right: 10px;
+}
+
+.shop {
+position: absolute;
+bottom: 90px;
+right: 10px;
+width: 400px;
+height: 200px;
+padding: 10px;
+
+clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+
+background: linear-gradient(var(--border), var(--border2));
+border-top: 2px solid var(--borderlight);
+border-bottom: 2px solid var(--borderdark);
+}
+.shop::before {
+content: '';
+position: absolute;
+inset: 10px;
+clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+z-index: -1;
+
+background: linear-gradient(var(--main), var(--main2));
+box-shadow: 0 0 30px 5px var(--innershadow) inset;
+}
+
+.buyitem {
+padding: 5px;
+width: calc(100% - 30px);
+}
+
+.itemname {
+display: inline-block;
+padding: 5px;
+font-size: 30px;
+}
+.itemprice {
+display: inline-block;
+float: right;
+font-size: 30px;
+padding: 10px;
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+background: linear-gradient(rgb(146, 123, 18), rgb(107, 85, 12));
+border-top: 2px solid rgb(179, 156, 28);
+border-bottom: 2px solid rgb(63, 50, 16);
+}
 </style>
 
 <body>
@@ -975,7 +1046,7 @@ cursor: pointer;
 
         <div class="createlobby" data-action="createroom">СОЗДАТЬ ЛОББИ</div>
 
-        <div class="playerpreview">ПЕРСЮК</div>
+        <div class="playerpreview"></div>
 
         <div class="nnwrapper"><div class="nicknamebox"><input class="nickname" placeholder="Ваш никнейм" maxlength="12"></div></div>
         <div class="mmwrapper"><div class="matchmaking" data-action="matchmaking">ИГРАТЬ</div></div>
@@ -991,33 +1062,33 @@ cursor: pointer;
         <div class="btwrapper">
         <div class="blueteam">
             <div id="blue1" class="playerslot" data-action="selectslot" data-id="1">
-                <div class="avatar"></div>
+                <div class="avatarblue"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div>
+                <div class="playerclass">1</div>
                 <div class="readymark">ГОТОВ</div></div>
             </div>
             <div id="blue2" class="playerslot" data-action="selectslot" data-id="2">
-                <div class="avatar"></div>
+                <div class="avatarblue"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div>
+                <div class="playerclass">2</div>
                 <div class="readymark">ГОТОВ</div></div>
             </div>
             <div id="blue3" class="playerslot" data-action="selectslot" data-id="3">
-                <div class="avatar"></div>
+                <div class="avatarblue"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div>
+                <div class="playerclass">3</div>
                 <div class="readymark">ГОТОВ</div></div>
             </div>
             <div id="blue4" class="playerslot" data-action="selectslot" data-id="4">
-                <div class="avatar"></div>
+                <div class="avatarblue"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div>
+                <div class="playerclass">4</div>
                 <div class="readymark">ГОТОВ</div></div>
             </div>
             <div id="blue5" class="playerslot" data-action="selectslot" data-id="5">
-                <div class="avatar"></div>
+                <div class="avatarblue"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div>
+                <div class="playerclass">5</div>
                 <div class="readymark">ГОТОВ</div></div>
             </div>
         </div>
@@ -1046,33 +1117,33 @@ cursor: pointer;
         <div class="rtwrapper">
         <div class="redteam">
             <div id="red1" class="playerslot" data-action="selectslot" data-id="6">
-                <div class="avatar"></div>
+                <div class="avatarred"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div>
+                <div class="playerclass">6</div>
                 <div class="readymark">ГОТОВ</div></div>
             </div>
             <div id="red2" class="playerslot" data-action="selectslot" data-id="7">
-                <div class="avatar"></div>
+                <div class="avatarred"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div>
+                <div class="playerclass">7</div>
                 <div class="readymark">ГОТОВ</div></div>
             </div>
             <div id="red3" class="playerslot" data-action="selectslot" data-id="8">
-                <div class="avatar"></div>
+                <div class="avatarred"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div>
+                <div class="playerclass">8</div>
                 <div class="readymark">ГОТОВ</div></div>
             </div>
             <div id="red4" class="playerslot" data-action="selectslot" data-id="9">
-                <div class="avatar"></div>
+                <div class="avatarred"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div>
+                <div class="playerclass">9</div>
                 <div class="readymark">ГОТОВ</div></div>
             </div>
             <div id="red5" class="playerslot" data-action="selectslot" data-id="10">
-                <div class="avatar"></div>
+                <div class="avatarred"></div>
                 <div class="slotinfo"><div class="playernick">СВОБОДНО</div>
-                <div class="playerclass">Роль</div>
+                <div class="playerclass">10</div>
                 <div class="readymark">ГОТОВ</div></div>
             </div>
         </div>
@@ -1089,7 +1160,7 @@ cursor: pointer;
             </div>
             <div class="bottomui">
                 <div class="cooldownbox"><div class="mycooldown"></div></div>
-                <div class="inventorybox"><div class="inventoryslot" id="islot1"></div><div class="inventoryslot" id="islot2"></div><div class="inventoryslot" id="islot3"></div><div class="inventoryslot" id="islot4"></div><div class="inventoryslot" id="islot5"></div></div>
+                <div class="inventorybox"><div class="inventoryslot" id="item1"></div><div class="inventoryslot" id="item2"></div><div class="inventoryslot" id="item3"></div><div class="inventoryslot" id="item4"></div><div class="inventoryslot" id="item5"></div></div>
                 <div class="hpbox"><div class="myhpvalue"></div><div class="myhp"></div></div>
                 <div class="manabox"><div class="mymanavalue"></div><div class="mymana"></div></div>
             </div>
@@ -1099,16 +1170,18 @@ cursor: pointer;
             <div class="redround" style="display: none;">Красные выиграли раунд</div>
         </div>
         <div class="shop" style="display: none;">
-            <div class="buyitem"><div class="itemname">Меч</div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
-            <div class="buyitem"><div class="itemname">Щит</div><div class="itemprice" data-action="buy" data-id="shield">500</div></div>
-            <div class="buyitem"><div class="itemname">Ботинки</div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
-            <div class="buyitem"><div class="itemname">Исцеление</div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
-            <div class="buyitem"><div class="itemname"></div><div class="itemprice" data-action="buy" data-id="sword">500</div></div>
+            <div class="buyitem"><div class="itemname">Меч</div><div class="itemprice" data-action="buy" data-id="1">1000</div></div>
+            <div class="buyitem"><div class="itemname">Щит</div><div class="itemprice" data-action="buy" data-id="2">1500</div></div>
+            <div class="buyitem"><div class="itemname">Ботинки</div><div class="itemprice" data-action="buy" data-id="3">2000</div></div>
+            <div class="buyitem"><div class="itemname">Здоровье</div><div class="itemprice" data-action="buy" data-id="4">1500</div></div>
+            <div class="buyitem"><div class="itemname">Мана</div><div class="itemprice" data-action="buy" data-id="5">1500</div></div>
         </div>
-        <div class="bluegame" style="display: none;" data-action="hidewin">СИНИЕ ОДЕРЖАЛИ ПОБЕДУ</div>
-        <div class="redgame" style="display: none;" data-action="hidewin">КРАСНЫЕ ОДЕРЖАЛИ ПОБЕДУ</div>
+        <div class="gamechat"></div>
         <canvas id="canvas"></canvas>
     </div>
+
+    <div class="bluegame" style="display: none;" data-action="hidewin">СИНИЕ ОДЕРЖАЛИ ПОБЕДУ</div>
+    <div class="redgame" style="display: none;" data-action="hidewin">КРАСНЫЕ ОДЕРЖАЛИ ПОБЕДУ</div>
     
     <script type="module" src="src/main.js"></script>
 

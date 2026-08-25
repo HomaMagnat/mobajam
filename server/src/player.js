@@ -18,11 +18,11 @@ class Player {
         this.isdead = false;
 
         this.inventory = {
-            1: {},
-            2: {},
-            3: {},
-            4: {},
-            5: {}
+            1: false,
+            2: false,
+            3: false,
+            4: false,
+            5: false
         };
 
         this.classesconfig = { //cooldown - per attack ms
@@ -42,9 +42,11 @@ class Player {
         this.PLAYERWIDTH = 64;
         this.PLAYERHEIGHT = 64;
         this.PLAYERRADIUS = 64;
+        this.TOWERWIDTH = 128;
+        this.TOWERHEIGHT = 128;
     }
 
-    move(dt, location, players) {
+    move(dt, location, players, towers) {
         if(this.targetx === null || this.targety === null) return;
 
         let dx = this.targetx - this.x;
@@ -65,13 +67,13 @@ class Player {
         let newy = this.speed * dt * Math.sin(angle);
 
         this.x += newx;
-        if(this.checkmapcollision(location) || this.checkplayercollision(players)) {
+        if(this.checkmapcollision(location) || this.checkplayercollision(players) || this.checktowercollision(towers)) {
             this.x -= newx;
             this.stop();
         }
 
         this.y += newy;
-        if(this.checkmapcollision(location) || this.checkplayercollision(players)) {
+        if(this.checkmapcollision(location) || this.checkplayercollision(players) || this.checktowercollision(towers)) {
             this.y -= newy;
             this.stop();
         }
@@ -122,6 +124,22 @@ class Player {
         return false;
     }
 
+    checktowercollision(towers) {
+        for(let team in towers) {
+            for(let tower in towers[team]) {
+                if(towers[team][tower].hp == 0) continue;
+                if(this.aabb(
+                    {x: this.x, y: this.y, w: this.PLAYERWIDTH, h: this.PLAYERHEIGHT},
+                    {x: towers[team][tower].x, y: towers[team][tower].y, w: this.TOWERWIDTH, h: this.TOWERHEIGHT}
+                )) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     aabb(rect1, rect2) {
         return (
             rect1.x < rect2.x + rect2.w &&
@@ -146,8 +164,8 @@ class Player {
         return (dx * dx + dy * dy) < (circle.radius * circle.radius);
     }
 
-    playerupdate(dt, location, players) {
-        this.move(dt, location, players);
+    playerupdate(dt, location, players, towers) {
+        this.move(dt, location, players, towers);
     }
 }
 

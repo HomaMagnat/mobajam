@@ -15,8 +15,28 @@ export class Renderer {
         this.FRAME_SIZE = 256;
 
         this.textures = { //sprites, images, assets
-            'tile1': this.loadimg('src/textures/tile1.png'),
-            'test': this.loadimg('https://media.discordapp.net/attachments/1246825599713148992/1541563905736843295/class1_downright_run_red.png?ex=6a8e0cc4&is=6a8cbb44&hm=523d7568a19575497e00b945ad846734e008225da5ecc76460338977e2ef91ee&=&format=webp&quality=lossless')
+            'tile1': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile1.png'),
+            'tile2': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile2.png'),
+            'tile3': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile3.png'),
+            'tile4': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile4.png'),
+            'tile5': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile5.png'),
+            'tile6': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile6.png'),
+            'tile7': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile7.png'),
+            'tile8': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile8.png'),
+            'tile9': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile9.png'),
+            'tile10': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile10.png'),
+            'tile11': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile11.png'),
+            'tile12': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile12.png'),
+            'tile13': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile13.png'),
+            'tile14': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile14.png'),
+            'tile15': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile15.png'),
+            'tile16': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile16.png'),
+            'tile17': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile17.png'),
+            'tile18': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile18.png'),
+            'tile19': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile19.png'),
+            'tile20': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tile20.png'),
+            'tower_blue': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tower_blue.png'),
+            'tower_red': this.loadimg('https://mobajam.hmxstudio.ru/src/textures/tower_red.png')
         };
 
         this.preloadplayersprites();
@@ -34,7 +54,7 @@ export class Renderer {
     }
 
     preloadplayersprites() {
-        const classes = [1, 2, 3, 4, 5];
+        const classes = [1];
         const directions = ['up', 'down', 'left', 'right', 'upleft', 'upright', 'downleft', 'downright'];
         const animations = ['idle', 'run', 'attack'];
 
@@ -42,10 +62,10 @@ export class Renderer {
             directions.forEach(dir => {
                 animations.forEach(anim => {
                     const key = `class${c}_${dir}_${anim}_blue`;
-                    this.textures[key] = this.loadimg(`src/textures/${key}.png`);
+                    this.textures[key] = this.loadimg(`https://mobajam.hmxstudio.ru/src/textures/${key}.png`);
 
                     const key2 = `class${c}_${dir}_${anim}_red`;
-                    this.textures[key2] = this.loadimg(`src/textures/${key2}.png`);
+                    this.textures[key2] = this.loadimg(`https://mobajam.hmxstudio.ru/src/textures/${key2}.png`);
                 });
             });
         });
@@ -85,18 +105,35 @@ export class Renderer {
 
         let renderqueue = []; //всё что надо отрендерить
 
-        this.main.location.forEach(obj => { //объекты из карты
-            renderqueue.push({
-                ...obj,
-                x: obj.x * this.GRID_STEP,
-                y: obj.y * this.GRID_STEP
-            });
+        this.main.location.forEach(obj => {
+            if (obj.type === 'sector') {
+                for (let tx = 0; tx < obj.w; tx++) {
+                    for (let ty = 0; ty < obj.h; ty++) {
+                        let flatX = (obj.x + tx) * this.GRID_STEP;
+                        let flatY = (obj.y + ty) * this.GRID_STEP;
+                        let isopos = this.flattoiso(flatX, flatY);
+
+                        this.ctx.drawImage(this.textures[obj.texture], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
+                    }
+                }
+            } else if (obj.type === 'tile') {
+                let isopos = this.flattoiso(obj.x * this.GRID_STEP, obj.y * this.GRID_STEP);
+                this.drawtile(obj, isopos);
+            }
         });
 
         for(let id in this.main.players) { //игроки
             let p = this.main.players[id];
             if(!p.isdead) {
-                renderqueue.push({type: 'player', texture: 'class'+p.classid+'_'+p.direction+'_'+p.animation+'_'+p.team, ...p});
+                renderqueue.push({type: 'player', texture: 'class1_'+p.direction+'_'+p.animation+'_'+p.team, ...p});
+            }
+        }
+
+        for(let team in this.main.towers) { //башни
+            for(let tower in this.main.towers[team]) {
+                if(this.main.towers[team][tower].hp != 0) {
+                    renderqueue.push({type: 'tower', team: team, ...this.main.towers[team][tower]});
+                }
             }
         }
 
@@ -118,6 +155,9 @@ export class Renderer {
             }
             if(obj.type == 'player') {
                 this.drawplayer(obj, isopos);
+            }
+            if(obj.type == 'tower') {
+                this.drawtower(obj, isopos);
             }
         });
     }
@@ -151,12 +191,15 @@ export class Renderer {
     }
 
     drawplayer(obj, isopos) {
-        this.ctx.drawImage(this.textures['tile1'], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
+        //this.ctx.drawImage(this.textures['tile1'], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
 
-        const spriteSheet = this.textures['test']; //obj.texture
+        const spriteSheet = this.textures[obj.texture]; //obj.texture
 
         if(spriteSheet && spriteSheet.complete) {
-            const currentFrameIndex = Math.floor(this.animationtimer % this.TOTAL_FRAMES);
+            let currentFrameIndex = Math.floor(this.animationtimer % this.TOTAL_FRAMES);
+            if(obj.animation == 'attack') {
+               currentFrameIndex = Math.floor(this.animationtimer % 6);
+            }
 
             const sourceX = currentFrameIndex * this.FRAME_SIZE;
             const sourceY = 0;
@@ -201,5 +244,24 @@ export class Renderer {
                 this.ctx.fillText(obj.hp + ' / ' + obj.config.hp, isopos.x, isopos.y - 136);
             }
         }
+    }
+
+    drawtower(obj, isopos) {
+        this.ctx.drawImage(this.textures['tile2'], isopos.x - (256 / 2), isopos.y, 256, 128);
+        this.ctx.drawImage(this.textures['tower_'+obj.team], isopos.x - (512 / 2), isopos.y - 512+128, 512, 512);
+
+        const barwidth = 200;
+        const barheight = 20;
+        const padding = 4;
+
+        this.ctx.fillStyle = 'black'; //hp bar
+        this.ctx.fillRect(isopos.x - (barwidth / 2) - padding, isopos.y - 132 - barheight - padding, barwidth + padding*2, barheight + padding*2);
+        this.ctx.fillStyle = 'red';
+        this.ctx.fillRect(isopos.x - (barwidth / 2), isopos.y - 132 - barheight, ((obj.hp / obj.maxhp) * 200), barheight);
+
+        this.ctx.fillStyle = 'white';
+        this.ctx.textAlign = 'center';
+        this.ctx.font = 'bold 18px helvetica';
+        this.ctx.fillText(obj.hp + ' / ' + obj.maxhp, isopos.x, isopos.y - 136);
     }
 }

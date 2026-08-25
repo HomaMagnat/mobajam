@@ -16,7 +16,7 @@ export class Main {
             GAMEWIN: (data) => this.gamewin(data)
         };
 
-        this.location = [{type: 'tile', texture: 'tile1', x: 3, y: 3, hitbox: true}];
+        this.location = [];
         this.players = {};
         this.towers = {};
         this.myid = '';
@@ -51,6 +51,11 @@ export class Main {
             redround: document.querySelector('.redround'),
             bluegame: document.querySelector('.bluegame'),
             redgame: document.querySelector('.redgame'),
+            item1: document.getElementById('item1'),
+            item2: document.getElementById('item2'),
+            item3: document.getElementById('item3'),
+            item4: document.getElementById('item4'),
+            item5: document.getElementById('item5')
         };
 
         window.addEventListener('click', (e) => this.globalclick(e));
@@ -112,6 +117,11 @@ export class Main {
         }
         this.players = {};
         this.towers = {};
+
+        const chatbox = document.querySelector('.chatbox');
+        const cbwrapper = document.querySelector('.cbwrapper');
+        cbwrapper.appendChild(chatbox); 
+
     }
 
     //game
@@ -233,6 +243,8 @@ export class Main {
         } else {
             this.ui.alonewindow.style.opacity = '0';
         }
+
+        this.location = data.location;
     }
 
     chatmessage(data) {
@@ -246,6 +258,9 @@ export class Main {
 
     matchstart(data) {
         this.switchscreen('game');
+        const chatbox = document.querySelector('.chatbox');
+        const gamechat = document.querySelector('.gamechat');
+        gamechat.appendChild(chatbox); 
         this.requestid = requestAnimationFrame(this.mainloop);
     }
 
@@ -259,7 +274,7 @@ export class Main {
 
     buyphase() {
         this.ui.tophint.textContent = 'ВРЕМЯ ЗАКУПКИ';
-        this.ui.shop.style.display = 'block';
+        //this.ui.shop.style.display = 'block';
         this.ui.youdied.style.display = 'none';
     }
 
@@ -357,6 +372,10 @@ export class Main {
         this.serversend('READY', {});
     }
 
+    buy(item) {
+        this.serversend('BUY', {item: parseInt(item)});
+    }
+
     //update data logic from server 30 tickrate
     updateroom(data) {
         for(const [playerid, serverprops] of Object.entries(data.players)) {
@@ -384,6 +403,14 @@ export class Main {
 
         this.ui.myhpvalue.textContent = data.players[this.myid].hp + ' / ' + data.players[this.myid].config.hp;
         this.ui.mymanavalue.textContent = data.players[this.myid].mana + ' / ' + data.players[this.myid].config.mana;
+
+        /*for(let item in data.players[this.myid].inventory) {
+            if(data.players[this.myid].inventory[item] == true) {
+                this.ui['item'+item].style.opacity = 1;
+            } else {
+                this.ui['item'+item].style.opacity = 0;
+            }
+        }*/
 
         if(data.players[this.myid].isdead) {
             this.ui.youdied.style.display = 'block';
