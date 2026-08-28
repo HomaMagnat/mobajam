@@ -222,7 +222,7 @@ class Room {
             superelixir: {item: 'superelixir', singleuse: true, price: 300}, //большая манка +250 маны
             teleport: {item: 'teleport', singleuse: false, cooldown: 60000, lastusetime: 0, price: 250}, //телепорт на базу
             boots: {item: 'boots', singleuse: false, cooldown: 45000, lastusetime: 0, price: 300}, //скорость x2 на 5 сек
-            fastattack: {item: 'fastattack', singleuse: false, cooldown: 60000, lastusetime: 0, price: 700}, //куладун x0.5 на 10 сек
+            fastattack: {item: 'fastattack', singleuse: false, cooldown: 60000, lastusetime: 0, price: 700}, //куладун x0.5 на 5 сек
             ultimate: {item: 'ultimate', singleuse: false, cooldown: 45000, lastusetime: 0, price: 450}, //ульта -200 хп
             depletion: {item: 'depletion', singleuse: false, cooldown: 45000, lastusetime: 0, price: 450}, //сжирание маны -200 маны
             stun: {item: 'stun', singleuse: false, cooldown: 50000, lastusetime: 0, price: 700} //стан на 5 сек
@@ -433,6 +433,14 @@ class Room {
             player.hp = config.hp;
             player.mana = config.mana;
             player.speed = config.speed;
+
+            for(let item in player.inventory) {
+                if(player.inventory[item] != null) {
+                    if(player.inventory[item].singleuse == false) {
+                        player.inventory[item].lastusetime = 0;
+                    }
+                }
+            }
         }
 
         this.clock = 20;
@@ -491,6 +499,8 @@ class Room {
 
         let item = player.inventory[data.key];
         if(item != null) { //есть в инвентаре
+            const thistime = Date.now();
+
             if(item.singleuse == true) { //одноразовый
                 if(item.item == 'healing') {
                     player.hp = Math.min(player.classesconfig[player.classid].hp, player.hp + 100);
@@ -513,27 +523,59 @@ class Room {
                     return;
                 }
 
-                item.lastusetime = thistime;
-
                 if(item.item == 'teleport') {
+                    const config = player.classesconfig[player.classid];
+                    let outstep = 8;
+
                     if(player.team == 'blue') {
                         player.x = 64*64 - config.x;
                         player.y = 64*64 - config.y;
+                        player.targetx = null;
+                        player.targety = null;
+                        player.direction = 'up';
+                        player.animation = 'idle';
                         while(player.checkmapcollision(this.location) || player.checkplayercollision(this.players) || player.checktowercollision(this.towers)) {
-                            player.x = 64*64 - config.x - 8;
-                            player.y = 64*64 - config.y - 8;
+                            player.x = 64*64 - config.x - outstep;
+                            player.y = 64*64 - config.y - outstep;
+                            outstep++;
                         }
                     } else {
                         player.x = config.x;
                         player.y = config.y;
                         while(player.checkmapcollision(this.location) || player.checkplayercollision(this.players) || player.checktowercollision(this.towers)) {
-                            player.x = config.x + 8;
-                            player.y = config.y + 8;
+                            player.x = config.x + outstep;
+                            player.y = config.y + outstep;
+                            outstep++;
                         }
                     }
+
+                    item.lastusetime = thistime;
                 }
 
+                if(item.item == 'ultimate') {
+                    player.ultimate = 200; //применится и сбросится при следующем ударе во врага
+                    player.itemused = data.key;
+                }
 
+                if(item.item == 'depletion') {
+                    player.depletion = 200; //применится и сбросится при следующем ударе во врага
+                    player.itemused = data.key;
+                }
+
+                if(item.item == 'boots') {
+                    player.boots = thistime + 5000; //для этого игрока (в обработке скорости передвижения)
+                    item.lastusetime = thistime;
+                }
+
+                if(item.item == 'fastattack') {
+                    player.fastattack = thistime + 5000; //для этого игрока (в обработке кулдауна удара)
+                    item.lastusetime = thistime;
+                }
+
+                if(item.item == 'stun') {
+                    player.tostun = true; //применится и начнётся при следующем ударе во врага
+                    player.itemused = data.key;
+                }
             }
         }
     }
@@ -543,6 +585,10 @@ class Room {
 
         let player = this.players[ws.playerid];
         if(player && !player.isdead) {
+            if(player.stunned && Date.now() < player.stunned) {
+                return;
+            }
+            
             player.targetx = data.targetx;
             player.targety = data.targety;
 
@@ -624,7 +670,12 @@ class Room {
         const config = player.classesconfig[player.classid];
         const thistime = Date.now();
 
-        if(thistime - player.lastattacktime < config.cooldown) { //кулдаун не прошёл
+        let currentcooldown = config.cooldown;
+        if(player.fastattack && thistime < player.fastattack) {
+            currentcooldown = config.cooldown * 0.5;
+        }
+
+        if(thistime - player.lastattacktime < currentcooldown) {
             player.lastattacktime = thistime; //антиспам
             return;
         }
@@ -653,7 +704,11 @@ class Room {
         thistower.hp = Math.max(0, thistower.hp - config.damage);
         if(thistower.hp == 0) {
             player.gold += 500;
+            this.fxevents.push({type: 'tower', sound: true});
+            return;
         }
+
+        this.fxevents.push({type: 'attack' + (Math.floor(Math.random() * 3) + 1), sound: true});
     }
 
     playerattack(playerid, enemyid) {
@@ -662,7 +717,12 @@ class Room {
         const config = player.classesconfig[player.classid];
         const thistime = Date.now();
 
-        if(thistime - player.lastattacktime < config.cooldown) { //кулдаун не прошёл
+        let currentcooldown = config.cooldown;
+        if(player.fastattack && thistime < player.fastattack) {
+            currentcooldown = config.cooldown * 0.5;
+        }
+
+        if(thistime - player.lastattacktime < currentcooldown) {
             player.lastattacktime = thistime; //антиспам
             return;
         }
@@ -676,11 +736,12 @@ class Room {
         player.lastattacktime = thistime;
 
         player.mana = Math.max(0, player.mana - config.manacost);
-        enemy.hp = Math.max(0, enemy.hp - config.damage);
+        enemy.hp = Math.max(0, enemy.hp - config.damage - player.ultimate);
+
         if(enemy.hp == 0) { //единственный способ умереть
             player.gold += 500;
             enemy.isdead = true;
-            this.inventory = {
+            enemy.inventory = {
                 Q: null,
                 W: null,
                 E: null,
@@ -688,6 +749,31 @@ class Room {
                 T: null
             };
         }
+
+        if(player.ultimate > 0) {
+            player.ultimate = 0;
+            player.inventory[player.itemused].lastusetime = Date.now();
+            this.fxevents.push({type: 'ultimate', sound: true});
+            return;
+        }
+
+        if(player.depletion > 0) {
+            enemy.mana = Math.max(0, enemy.mana - player.depletion);
+            player.depletion = 0;
+            player.inventory[player.itemused].lastusetime = Date.now();
+            this.fxevents.push({type: 'depletion', sound: true});
+            return;
+        }
+
+        if(player.tostun == true) {
+            enemy.stunned = Date.now() + 5000;
+            player.tostun = false;
+            player.inventory[player.itemused].lastusetime = Date.now();
+            this.fxevents.push({type: 'stun', sound: true});
+            return;
+        }
+
+        this.fxevents.push({type: 'attack' + (Math.floor(Math.random() * 3) + 1), sound: true});
     }
 
     towerautoattack() {
@@ -708,7 +794,7 @@ class Room {
                         let thistower = {x: tower.x, y: tower.y, radius: tower.attackradius};
                         let thisplayer = {x: p.x, y: p.y, radius: p.PLAYERRADIUS};
                         if(p.circlecollision(thistower, thisplayer)) {
-                            if(this.players[pid] < 10) {
+                            if(p.hp > 10) {
                                 this.players[pid].hp = Math.max(10, this.players[pid].hp - tower.damage);
                                 tower.lastattacktime = thistime;
 
@@ -784,10 +870,19 @@ class Room {
 
             const thistime = Date.now();
             let currentcooldown = 0;
-            if(thistime - this.players[id].lastattacktime < this.players[id].classesconfig[this.players[id].classid].cooldown) {
-                currentcooldown = thistime - this.players[id].lastattacktime;
+
+            let activecooldown = this.players[id].classesconfig[this.players[id].classid].cooldown;
+
+            if(this.players[id].fastattack && thistime < this.players[id].fastattack) {
+                activecooldown = activecooldown * 0.5;
+            }
+
+            const timePassed = thistime - this.players[id].lastattacktime;
+
+            if(timePassed < activecooldown) {
+                currentcooldown = timePassed; 
             } else {
-                currentcooldown = this.players[id].classesconfig[this.players[id].classid].cooldown;
+                currentcooldown = activecooldown;
                 if(this.players[id].animation == 'attack') {
                     this.players[id].animation = 'idle';
                 }
@@ -809,7 +904,10 @@ class Room {
                 inventory: this.players[id].inventory,
                 direction: this.players[id].direction,
                 animation: this.players[id].animation,
-                config: this.players[id].classesconfig[this.players[id].classid],
+                config: { 
+                    ...this.players[id].classesconfig[this.players[id].classid],
+                    cooldown: activecooldown 
+                },
                 currentcooldown: currentcooldown
             }
         }
@@ -819,6 +917,8 @@ class Room {
         data.redscore = this.redscore;
 
         data.fxevents = this.fxevents;
+
+        data.thistime = Date.now();
 
         this.sendtoroom('UPDATEROOM', data);
 

@@ -14,7 +14,7 @@ class Player {
         this.hp = 100; //setup by class
         this.mana = 100; //setup by class
         this.speed = 500; //setup by class
-        this.gold = 800;
+        this.gold = 80000;
         this.isdead = false;
 
         this.inventory = {
@@ -54,6 +54,18 @@ class Player {
         this.direction = 'up';
         this.animation = 'idle';
 
+        this.itemused = '';
+
+        this.ultimate = 0; //current abilities
+        this.depletion = 0;
+
+        this.tostun = false;
+
+        this.boots = Date.now();
+        this.fastattack = Date.now();
+
+        this.stunned = Date.now(); //current disabilities
+
         this.GRIDSTEP = 64; //hitboxes sizes
         this.PLAYERWIDTH = 64;
         this.PLAYERHEIGHT = 64;
@@ -77,10 +89,15 @@ class Player {
             return;
         }
 
+        let currentspeed = this.speed;
+        if(this.boots && Date.now() < this.boots) {
+            currentspeed = this.speed * 2;
+        }
+
         let angle = Math.atan2(dy, dx);
 
-        let newx = this.speed * dt * Math.cos(angle);
-        let newy = this.speed * dt * Math.sin(angle);
+        let newx = currentspeed * dt * Math.cos(angle);
+        let newy = currentspeed * dt * Math.sin(angle);
 
         this.x += newx;
         if(this.checkmapcollision(location) || this.checkplayercollision(players) || this.checktowercollision(towers)) {

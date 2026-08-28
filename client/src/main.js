@@ -21,6 +21,25 @@ export class Main {
         this.towers = {};
         this.myid = '';
 
+        this.gamesounds = {
+            attack1: new Audio('https://mobajam.hmxstudio.ru/src/sound/attack.mp3'),
+            attack2: new Audio('https://mobajam.hmxstudio.ru/src/sound/attack2.mp3'),
+            attack3: new Audio('https://mobajam.hmxstudio.ru/src/sound/attack3.mp3'),
+            boots: new Audio('https://mobajam.hmxstudio.ru/src/sound/boots.mp3'),
+            depletion: new Audio('https://mobajam.hmxstudio.ru/src/sound/depletion.mp3'),
+            lose: new Audio('https://mobajam.hmxstudio.ru/src/sound/lose.mp3'),
+            music: new Audio('https://mobajam.hmxstudio.ru/src/sound/music.mp3'),
+            potion: new Audio('https://mobajam.hmxstudio.ru/src/sound/potion.mp3'),
+            stun: new Audio('https://mobajam.hmxstudio.ru/src/sound/stun.mp3'),
+            teleport: new Audio('https://mobajam.hmxstudio.ru/src/sound/teleport.mp3'),
+            tower: new Audio('https://mobajam.hmxstudio.ru/src/sound/tower.mp3'),
+            ultimate: new Audio('https://mobajam.hmxstudio.ru/src/sound/ultimate.mp3'),
+            win: new Audio('https://mobajam.hmxstudio.ru/src/sound/win.mp3'),
+        };
+
+        this.gamesounds.music.loop = true;
+        this.gamesounds.music.volume = 0.1;
+
         this.ui = {
             nickname: document.querySelector('.nickname'),
             rooms: document.querySelector('.rooms'),
@@ -78,6 +97,14 @@ export class Main {
         this.connect();
     }
 
+    playsound(id) {
+        let sound = this.gamesounds[id];
+        if(sound) {
+            sound.currentTime = 0;
+            sound.play().catch(e => {});
+        }
+    }
+
     //global ui
     globalclick(e) {
         const target = e.target.closest('[data-action]');
@@ -90,10 +117,6 @@ export class Main {
             this[action](id, e);
         } else {
             console.warn(`Method ${action} is not implemented in UI class`);
-        }
-
-        if(e.target !== this.ui.inputmessage) {
-            this.ui.inputmessage.blur();
         }
     }
 
@@ -120,7 +143,7 @@ export class Main {
 
     shopmouseover = (e) => {
         const product = e.target.closest('.product');
-        if (!product) return;
+        if(!product) return;
 
         const title = product.getAttribute('data-title');
         const desc = product.getAttribute('data-description');
@@ -186,6 +209,9 @@ export class Main {
     }
 
     gameclick(e) {
+        if(e.target !== this.ui.inputmessage) {
+            this.ui.inputmessage.blur();
+        }
         e.preventDefault();
 
         const scale = this.renderer.scalefactor;
@@ -317,6 +343,8 @@ export class Main {
         const gamechat = document.querySelector('.gamechat');
         gamechat.appendChild(chatbox); 
         this.requestid = requestAnimationFrame(this.mainloop);
+
+        this.gamesounds.music.play();
     }
 
     getmyid(data) {
@@ -350,6 +378,12 @@ export class Main {
             setTimeout(() => {
                 this.ui.redround.style.display = 'none';
             }, 4000);
+        }
+
+        if(data.team == this.players[this.myid].team) {
+            this.playsound('win');
+        } else {
+            this.playsound('lose');
         }
     }
 
@@ -432,6 +466,27 @@ export class Main {
     }
 
     useitem(key) {
+        let thisitem = this.players[this.myid].inventory[key];
+        if(thisitem != null) {
+            if(thisitem.item == 'teleport' && thisitem.lastusetime == 0) {
+                this.playsound('teleport');
+            }
+            if(thisitem.item == 'boots' && thisitem.lastusetime == 0) {
+                this.playsound('boots');
+            }
+            if(thisitem.item == 'healing') {
+                this.playsound('potion');
+            }
+            if(thisitem.item == 'elixir') {
+                this.playsound('potion');
+            }
+            if(thisitem.item == 'superhealing') {
+                this.playsound('potion');
+            }
+            if(thisitem.item == 'superelixir') {
+                this.playsound('potion');
+            }
+        }
         this.serversend('USEITEM', {key: key});
     }
 
@@ -455,23 +510,17 @@ export class Main {
         this.ui.bluescore.textContent = data.bluescore;
         this.ui.redscore.textContent = data.redscore;
 
-        this.ui.myhp.style.width = ((data.players[this.myid].hp / data.players[this.myid].config.hp) * 100) + '%';
-        this.ui.mymana.style.width = ((data.players[this.myid].mana / data.players[this.myid].config.mana) * 100) + '%';
-        this.ui.mycooldown.style.width = ((data.players[this.myid].currentcooldown / data.players[this.myid].config.cooldown) * 100) + '%';
-        this.ui.mygold.textContent = data.players[this.myid].gold;
+        let myplayer = data.players[this.myid];
 
-        this.ui.myhpvalue.textContent = data.players[this.myid].hp + ' / ' + data.players[this.myid].config.hp;
-        this.ui.mymanavalue.textContent = data.players[this.myid].mana + ' / ' + data.players[this.myid].config.mana;
+        this.ui.myhp.style.width = ((myplayer.hp / myplayer.config.hp) * 100) + '%';
+        this.ui.mymana.style.width = ((myplayer.mana / myplayer.config.mana) * 100) + '%';
+        this.ui.mycooldown.style.width = ((myplayer.currentcooldown / myplayer.config.cooldown) * 100) + '%';
+        this.ui.mygold.textContent = myplayer.gold;
 
-        /*for(let item in data.players[this.myid].inventory) {
-            if(data.players[this.myid].inventory[item] == true) {
-                this.ui['item'+item].style.opacity = 1;
-            } else {
-                this.ui['item'+item].style.opacity = 0;
-            }
-        }*/
+        this.ui.myhpvalue.textContent = myplayer.hp + ' / ' + myplayer.config.hp;
+        this.ui.mymanavalue.textContent = myplayer.mana + ' / ' + myplayer.config.mana;
 
-        let inventory = data.players[this.myid].inventory;
+        let inventory = myplayer.inventory;
         for(let item in inventory) {
             if(inventory[item] == null) {
                 this.ui[item+'item'].querySelector('.itemicon').style.background = 'none';
@@ -479,14 +528,38 @@ export class Main {
                 this.ui[item+'item'].querySelector('.itemcooldown').width = '0%';
             } else {
                 this.ui[item+'item'].querySelector('.itemicon').style.background = 'url(https://mobajam.hmxstudio.ru/src/textures/'+inventory[item].item+'.png)';
-                if(inventory[item].singleuse == false) {
+                if(inventory[item].singleuse == true) {
                     this.ui[item+'item'].querySelector('.itemicon').textContent = '';
                     this.ui[item+'item'].querySelector('.itemcooldown').width = '0%';
+                } else {
+                    const timepassed = data.thistime - inventory[item].lastusetime;
+                    const itemcooldown = inventory[item].cooldown;
+
+                    if(timepassed < itemcooldown) {
+                        const timeleftsec = Math.ceil((itemcooldown - timepassed) / 1000);
+
+                        const percentleft = ((itemcooldown - timepassed) / itemcooldown) * 100;
+
+                        this.ui[item+'item'].querySelector('.itemicon').textContent = timeleftsec;
+                        this.ui[item+'item'].querySelector('.itemcooldown').style.width = percentleft + '%';
+                    } else {
+                        this.ui[item+'item'].querySelector('.itemicon').textContent = '';
+                        this.ui[item+'item'].querySelector('.itemcooldown').style.width = '0%';
+                        this.players[this.myid].inventory[item].lastusetime = 0;
+                    }
                 }
             }
         }
 
-        if(data.players[this.myid].isdead) {
+        if(data.fxevents.length > 0) {
+            data.fxevents.forEach(fx => {
+                if(fx.sound == true) {
+                    this.playsound(fx.type);
+                }
+            });
+        }
+
+        if(myplayer.isdead) {
             this.ui.youdied.style.display = 'block';
         }
     }
