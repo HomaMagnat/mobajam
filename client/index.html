@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOBKA</title>
+    <title>SWEAT</title>
     
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -64,7 +64,9 @@ padding: 0;
 height: 100%;
 width: 100%;
 overflow: hidden;
-background: url(https://media.discordapp.net/attachments/1234830687199035442/1541170517443215490/image.png?ex=6a8d4724&is=6a8bf5a4&hm=df9fe6f3ed9c07d7dfe035538642ed4c578b6f38d19c75d25f315c645088ba2d&format=webp&quality=lossless&) no-repeat;
+background-color: #04050e;
+background-image: url(https://mobajam.hmxstudio.ru/src/textures/bgbgbg.png);
+background-repeat: no-repeat;
 background-size: cover;
 background-position: right center;
 color: white;
@@ -151,7 +153,7 @@ box-shadow: 0 0 30px 5px var(--innershadow) inset;
 .rooms {
 width: 100%;
 height: 100%;
-overflow-y: scroll;
+overflow-y: hidden;
 }
 
 .room {
@@ -289,14 +291,16 @@ transition: none !important;
 }
 
 .playerpreview {
+display: none;
 position: absolute;
-  right: 30%;
-  bottom: 40%;
-  background-image: url(https://mobajam.hmxstudio.ru/src/textures/red.png);
-  width: 512px;
-  height: 512px;
-  background-repeat: no-repeat;
-  background-size: cover;
+right: 50px;
+bottom: 50px;
+background-image: url(https://mobajam.hmxstudio.ru/src/textures/red.png);
+width: 1024px;
+height: 1024px;
+background-repeat: no-repeat;
+background-size: cover;
+z-index: 0;
 }
 
 .btwrapper {
@@ -458,7 +462,7 @@ box-shadow: 0 0 30px 5px var(--innershadow) inset;
 .chat {
 width: 100%;
 height: calc(100% - 50px);
-overflow-y: scroll;
+overflow-y: hidden;
 }
 
 .chatinput {
@@ -984,16 +988,10 @@ filter: drop-shadow(0px 0px 5px #00000094);
 
 .shop {
 position: absolute;
-bottom: 110px;
-right: 10px;
-}
-
-.shop {
-position: absolute;
 bottom: 90px;
 right: 10px;
 width: 400px;
-height: 200px;
+height: 325px;
 padding: 10px;
 
 clip-path: polygon(20px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
@@ -1013,33 +1011,111 @@ background: linear-gradient(var(--main), var(--main2));
 box-shadow: 0 0 30px 5px var(--innershadow) inset;
 }
 
-.buyitem {
-padding: 5px;
-width: calc(100% - 30px);
+.product {
+display: inline-block;
+margin-left: 10px;
+margin-top: 10px;
+clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
 }
 
-.itemname {
+.producticon {
 display: inline-block;
-padding: 5px;
-font-size: 30px;
+width: 92px;
+height: 50px;
 }
-.itemprice {
+
+.productprice {
 display: inline-block;
-float: right;
-font-size: 30px;
-padding: 10px;
-clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
 background: linear-gradient(rgb(146, 123, 18), rgb(107, 85, 12));
 border-top: 2px solid rgb(179, 156, 28);
 border-bottom: 2px solid rgb(63, 50, 16);
+text-align: center;
+font-size: 28px;
+font-weight: 500;
+vertical-align: top;
+width: 92px;
+height: 46px;
+line-height: 46px;
+cursor: pointer;
+}
+
+.inventorybox {
+width: calc(100% + 10px);
+height: 60px;
+font-size: 0;
+}
+
+.inventoryslot {
+position: relative;
+display: inline-block;
+width: calc(20% - 10px);
+height: 50px;
+border: 5px solid var(--main);
+background: linear-gradient(var(--border2), var(--main2));
+}
+
+.itemicon {
+position: absolute;
+width: 100%;
+height: 100%;
+text-align: center;
+font-size: 30px;
+line-height: 50px;
+font-weight: 500;
+}
+
+.itemcooldown {
+position: absolute;
+width: 0%;
+height: 100%;
+background: gray;
+opacity: 0.5;
+}
+
+.tooltip {
+position: fixed;
+top: 0;
+left: 0;
+background: var(--border2);
+border: 1px solid var(--main2);
+color: #fff;
+padding: 10px;
+border-radius: 4px;
+max-width: 400px;
+min-width: 200px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.15s ease, visibility 0.15s ease;
+pointer-events: none;
+z-index: 9999;
+transform: translate(-100%, -100%);
+}
+
+.tooltip-title {
+font-weight: bold;
+color: white;
+margin-bottom: 5px;
+font-size: 16px;
+}
+.tooltip-desc {
+font-size: 14px;
+color: #ddd;
+line-height: 1.4;
+}
+
+.tooltip.active {
+opacity: 1;
+visibility: visible;
 }
 </style>
 
 <body>
     <div class="mainmenu">
-        <div class="gtwrapper"><div class="gametitle">MobaJam</div></div>
+        <div class="gtwrapper"><div class="gametitle">SWEAT</div></div>
 
         <div class="rlwrapper"><div class="roomlist">
+            <div style="text-align: center; font-weight: 500; font-size: 30px; margin-bottom: 10px;">Доступные лобби</div>
             <div class="rooms">
             </div>
         </div></div>
@@ -1160,7 +1236,13 @@ border-bottom: 2px solid rgb(63, 50, 16);
             </div>
             <div class="bottomui">
                 <div class="cooldownbox"><div class="mycooldown"></div></div>
-                <div class="inventorybox"><div class="inventoryslot" id="item1"></div><div class="inventoryslot" id="item2"></div><div class="inventoryslot" id="item3"></div><div class="inventoryslot" id="item4"></div><div class="inventoryslot" id="item5"></div></div>
+                <div class="inventorybox">
+                    <div class="inventoryslot" id="qitem"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
+                    <div class="inventoryslot" id="witem"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
+                    <div class="inventoryslot" id="eitem"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
+                    <div class="inventoryslot" id="ritem"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
+                    <div class="inventoryslot" id="titem"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
+                </div>
                 <div class="hpbox"><div class="myhpvalue"></div><div class="myhp"></div></div>
                 <div class="manabox"><div class="mymanavalue"></div><div class="mymana"></div></div>
             </div>
@@ -1170,11 +1252,16 @@ border-bottom: 2px solid rgb(63, 50, 16);
             <div class="redround" style="display: none;">Красные выиграли раунд</div>
         </div>
         <div class="shop" style="display: none;">
-            <div class="buyitem"><div class="itemname">Меч</div><div class="itemprice" data-action="buy" data-id="1">1000</div></div>
-            <div class="buyitem"><div class="itemname">Щит</div><div class="itemprice" data-action="buy" data-id="2">1500</div></div>
-            <div class="buyitem"><div class="itemname">Ботинки</div><div class="itemprice" data-action="buy" data-id="3">2000</div></div>
-            <div class="buyitem"><div class="itemname">Здоровье</div><div class="itemprice" data-action="buy" data-id="4">1500</div></div>
-            <div class="buyitem"><div class="itemname">Мана</div><div class="itemprice" data-action="buy" data-id="5">1500</div></div>
+            <div class="product" data-title="Малое зелье здоровья" data-description="Восстанавливает 100 единиц здоровья"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/healing.png);"></div><div class="productprice" data-action="buy" data-id="healing">150</div></div>
+            <div class="product" data-title="Малое зелье маны" data-description="Восстанавливает 100 единиц маны"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/elixir.png);"></div><div class="productprice" data-action="buy" data-id="elixir">150</div></div>
+            <div class="product" data-title="Большое зелье здоровья" data-description="Восстанавливает 250 единиц здоровья"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/superhealing.png);"></div><div class="productprice" data-action="buy" data-id="superhealing">300</div></div>
+            <div class="product" data-title="Большое зелье маны" data-description="Восстанавливает 250 единиц здоровья"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/superelixir.png);"></div><div class="productprice" data-action="buy" data-id="superelixir">300</div></div>
+            <div class="product" data-title="Магический свиток" data-description="Телепортирует вас на базу"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/teleport.png);"></div><div class="productprice" data-action="buy" data-id="teleport">250</div></div>
+            <div class="product" data-title="Крылатые сандалии" data-description="Ускоряет ваше передвижение в 2 раза на 5 секунд"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/boots.png);"></div><div class="productprice" data-action="buy" data-id="boots">300</div></div>
+            <div class="product" data-title="Ускорение атаки" data-description="Ускоряет время атаки в 2 раза на 10 секунд"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/fastattack.png);"></div><div class="productprice" data-action="buy" data-id="fastattack">700</div></div>
+            <div class="product" data-title="Ультимативный урон" data-description="Мгновенно отнимает часть здоровья врага"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/ultimate.png);"></div><div class="productprice" data-action="buy" data-id="ultimate">450</div></div>
+            <div class="product" data-title="Ультимативное истощение" data-description="Мгновенно отнимает часть маны врага"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/depletion.png);"></div><div class="productprice" data-action="buy" data-id="depletion">450</div></div>
+            <div class="product" data-title="Оглушение" data-description="Оглушает противника на 5 секунд"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/stun.png);"></div><div class="productprice" data-action="buy" data-id="stun">700</div></div>
         </div>
         <div class="gamechat"></div>
         <canvas id="canvas"></canvas>
@@ -1182,6 +1269,11 @@ border-bottom: 2px solid rgb(63, 50, 16);
 
     <div class="bluegame" style="display: none;" data-action="hidewin">СИНИЕ ОДЕРЖАЛИ ПОБЕДУ</div>
     <div class="redgame" style="display: none;" data-action="hidewin">КРАСНЫЕ ОДЕРЖАЛИ ПОБЕДУ</div>
+
+    <div id="tooltip" class="tooltip">
+        <div class="tooltip-title"></div>
+        <div class="tooltip-desc"></div>
+    </div>
     
     <script type="module" src="src/main.js"></script>
 

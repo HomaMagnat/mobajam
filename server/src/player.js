@@ -18,19 +18,35 @@ class Player {
         this.isdead = false;
 
         this.inventory = {
-            1: false,
-            2: false,
-            3: false,
-            4: false,
-            5: false
+            Q: null,
+            W: null,
+            E: null,
+            R: null,
+            T: null
         };
 
+        /*this.inventory = {
+            Q: {item: '', singleuse: true, cooldown: 1000, lastusetime: 0},
+            W: {item: '', singleuse: true, cooldown: 1000, lastusetime: 0},
+            E: {item: '', singleuse: true, cooldown: 1000, lastusetime: 0},
+            R: {item: '', singleuse: true, cooldown: 1000, lastusetime: 0},
+            T: {item: '', singleuse: true, cooldown: 1000, lastusetime: 0}
+        };*/
+        /*
         this.classesconfig = { //cooldown - per attack ms
-            1: {x: 100, y: 0, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20},
-            2: {x: 0, y: 100, hp: 800, mana: 800, speed: 300, attackradius: 256, cooldown: 2000, damage: 30, manacost: 20},
-            3: {x: 0, y: 0, hp: 800, mana: 800, speed: 300, attackradius: 128, cooldown: 1000, damage: 30, manacost: 20},
-            4: {x: 0, y: 0, hp: 800, mana: 800, speed: 300, attackradius: 128, cooldown: 1000, damage: 30, manacost: 20},
-            5: {x: 0, y: 0, hp: 800, mana: 800, speed: 300, attackradius: 128, cooldown: 1000, damage: 30, manacost: 20}
+            1: {x: 300, y: 100, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20},
+            2: {x: 450, y: 100, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20},
+            3: {x: 100, y: 300, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20},
+            4: {x: 100, y: 450, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20},
+            5: {x: 100, y: 100, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20}
+        };
+        */
+        this.classesconfig = {
+            1: {x: 300, y: 100, hp: 850, mana: 700, speed: 350, attackradius: 140, cooldown: 800,  damage: 30, manacost: 20},
+            2: {x: 450, y: 100, hp: 600,  mana: 400, speed: 400, attackradius: 200, cooldown: 600,  damage: 25, manacost: 10},
+            3: {x: 100, y: 300, hp: 750,  mana: 1200, speed: 450, attackradius: 250, cooldown: 850,  damage: 34, manacost: 26},
+            4: {x: 100, y: 450, hp: 650,  mana: 600, speed: 500, attackradius: 128, cooldown: 700,  damage: 30, manacost: 18},
+            5: {x: 100, y: 100, hp: 1100, mana: 500, speed: 300, attackradius: 128, cooldown: 1200, damage: 38, manacost: 20}
         };
 
         this.lastattacktime = 0;

@@ -12,32 +12,230 @@ class Room {
             SENDMESSAGE: (ws, data) => this.chatmessage(ws, data),
             READY: (ws) => this.playerready(ws),
             GAMECLICK: (ws, data) => this.gameclick(ws, data),
-            BUY: (ws, data) => this.playerbuy(ws, data)
+            BUY: (ws, data) => this.playerbuy(ws, data),
+            USEITEM: (ws, data) => this.useitem(ws, data)
         };
         this.ticksec = 0;
 
-        this.location = [{type: 'sector', texture: 'tile1', x: 0, y: 0, w: 64, h: 64, hitbox: false}];
+        this.location = [
+            {type: 'sector', texture: 'tile1', x: 0, y: 0, w: 64, h: 64, hitbox: false},
+
+            //Твой сглаженный диагональный МИД
+            {type: 'sector', texture: 'tile3', x: 6,  y: 6,  w: 8, h: 8, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 12, y: 12, w: 7, h: 7, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 17, y: 17, w: 7, h: 7, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 22, y: 22, w: 7, h: 7, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 27, y: 27, w: 7, h: 7, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 32, y: 32, w: 7, h: 7, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 37, y: 37, w: 7, h: 7, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 42, y: 42, w: 7, h: 7, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 47, y: 47, w: 7, h: 7, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 52, y: 52, w: 8, h: 8, hitbox: false},
+
+            //ТОП линия
+            {type: 'sector', texture: 'tile3', x: 6,  y: 6,  w: 52, h: 4, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 54, y: 6,  w: 4,  h: 52, hitbox: false},
+
+            //БОТ линия
+            {type: 'sector', texture: 'tile3', x: 6,  y: 6,  w: 4,  h: 52, hitbox: false},
+            {type: 'sector', texture: 'tile3', x: 6,  y: 54, w: 52, h: 4, hitbox: false},
+
+            {type: 'sector', texture: 'tile11', x: 55.2,  y: 55.2, w: 8, h: 8, hitbox: false}, //throne
+            {type: 'sector', texture: 'tile11', x: 1.2,  y: 1.2, w: 8, h: 8, hitbox: false},
+
+            {type: 'sector', texture: 'tile3', x: 39.2,  y: 39.2, w: 8, h: 8, hitbox: false}, //mid
+            {type: 'sector', texture: 'tile3', x: 19.2,  y: 19.2, w: 8, h: 8, hitbox: false},
+            
+            {type: 'sector', texture: 'tile3', x: 29.2,  y: 1.2, w: 8, h: 8, hitbox: false}, //top
+            {type: 'sector', texture: 'tile3', x: 55.2,  y: 29.2, w: 8, h: 8, hitbox: false},
+
+            {type: 'sector', texture: 'tile3', x: 29.2,  y: 55.2, w: 8, h: 8, hitbox: false}, //bottom
+            {type: 'sector', texture: 'tile3', x: 1.2,  y: 29.2, w: 8, h: 8, hitbox: false},
+
+            {type: 'object', texture: 'tile10', x: 0*64,  y: -1*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 8*64,  y: -1*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 16*64, y: -1*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 24*64, y: -1*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 32*64, y: -1*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 40*64, y: -1*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 48*64, y: -1*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 56*64, y: -1*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 64*64, y: -1*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 72*64, y: -1*64, hitbox: false},
+
+            {type: 'object', texture: 'tile10', x: 0*64,  y: 76*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 8*64,  y: 76*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 16*64, y: 76*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 24*64, y: 76*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 32*64, y: 76*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 40*64, y: 76*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 48*64, y: 76*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 56*64, y: 76*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 64*64, y: 76*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 72*64, y: 76*64, hitbox: false},
+
+            {type: 'object', texture: 'tile10', x: 0*64,  y: 8*64,  hitbox: false},
+            {type: 'object', texture: 'tile10', x: 0*64,  y: 16*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 0*64,  y: 24*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 0*64,  y: 32*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 0*64,  y: 40*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 0*64,  y: 48*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 0*64,  y: 56*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 0*64,  y: 64*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 0*64,  y: 70*64, hitbox: false},
+
+            {type: 'object', texture: 'tile10', x: 76*64, y: 8*64,  hitbox: false},
+            {type: 'object', texture: 'tile10', x: 76*64, y: 16*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 76*64, y: 24*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 76*64, y: 32*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 76*64, y: 40*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 76*64, y: 48*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 76*64, y: 56*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 76*64, y: 62*64, hitbox: false},
+            {type: 'object', texture: 'tile10', x: 76*64, y: 70*64, hitbox: false},
+
+            {type: 'sector', texture: 'tile2', x: -16, y: -16, w: 96,  h: 16, hitbox: true},
+            {type: 'sector', texture: 'tile2', x: -16, y: 64,  w: 96,  h: 16, hitbox: true},
+            {type: 'sector', texture: 'tile2', x: -16, y: 0,   w: 16,  h: 64, hitbox: true},
+            {type: 'sector', texture: 'tile2', x: 64,  y: 0,   w: 16,  h: 64, hitbox: true}
+        ];
+
+
+
+        //1. Точные координаты башен для полной очистки зоны вокруг них (в тайлах)
+        const towerPositions = [
+            {x: 42, y: 42}, {x: 58, y: 32}, {x: 32, y: 58}, // Синие
+            {x: 22, y: 22}, {x: 32, y: 4},  {x: 4,  y: 32}  // Красные
+        ];
+
+        //2. Сюда сохраняем координаты, чтобы объекты не наезжали друг на друга
+        let placedObjects = [];
+
+        //Сколько ВСЕГО объектов раскидать, чтобы карта была живой, но свободной
+        const TOTAL_OBJECTS_TO_SPAWN = 240;
+
+        let spawnedCount = 0;
+        let attempts = 0; 
+
+        while(spawnedCount < TOTAL_OBJECTS_TO_SPAWN && attempts < 3000) {
+            attempts++;
+
+            //Случайная точка внутри игрового поля
+            let tx = Math.floor(Math.random() * 60) + 4;
+            let ty = Math.floor(Math.random() * 60) + 4;
+
+            // --- ЗАЩИТА ТРОПИНОК, БАЗ И БАШЕН ---
+            if(tx <= 12 && ty <= 12) continue;   // Спавн красных чист
+            if(tx >= 51 && ty >= 51) continue;   // Спавн синих чист
+
+            //Топ линия
+            if(ty >= 5 && ty <= 10 && tx >= 5 && tx <= 58) continue;
+            if(tx >= 53 && tx <= 58 && ty >= 5 && ty <= 58) continue;
+
+            //Бот линия
+            if(tx >= 5 && tx <= 10 && ty >= 5 && ty <= 58) continue;
+            if(ty >= 53 && ty <= 58 && tx >= 5 && tx <= 58) continue;
+
+            //Мид линия
+            if(Math.abs(tx - ty) <= 5 && tx >= 5 && tx <= 58) continue;
+
+            //Проходы поперек мида
+            if(tx >= 29 && tx <= 33 && ty >= 12 && ty <= 51) continue;
+            if(ty >= 29 && ty <= 33 && tx >= 12 && tx <= 51) continue;
+
+            //Очистка зоны вокруг башен
+            let nearTower = false;
+            for(let tower of towerPositions) {
+                let dist = Math.max(Math.abs(tx - tower.x), Math.abs(ty - tower.y));
+                if (dist <= 4) { 
+                    nearTower = true;
+                    break;
+                }
+            }
+            if(nearTower) continue;
+
+            //Проверка, чтобы объекты не слипались в одну точку (зазор в 3 клетки)
+            let tooClose = false;
+            for(let oldObj of placedObjects) {
+                let distance = Math.max(Math.abs(tx - oldObj.x), Math.abs(ty - oldObj.y));
+                if (distance < 3) { 
+                    tooClose = true;
+                    break;
+                }
+            }
+            if (tooClose) continue;
+
+            placedObjects.push({x: tx, y: ty});
+            spawnedCount++;
+
+            let typeRoll = Math.random();
+
+            if(typeRoll < 0.25) {
+                //1. ПЕРВЫЙ ВИД ДЕРЕВА (tile7) — 25% шанс
+                this.location.push({type: 'object', texture: 'tile7', x: tx * 64, y: ty * 64, hitbox: false});
+                this.location.push({type: 'hitbox', x: (tx - 1) * 64, y: (ty - 1) * 64, w: 64, h: 64});
+            } else if(typeRoll >= 0.25 && typeRoll < 0.50) {
+                //2. ВТОРОЙ ВИД ДЕРЕВА (tile11) — ВЕРНУЛИ В ИГРУ! 25% шанс (Твой хитбокс сохранен)
+                this.location.push({type: 'object', texture: 'tile12', x: tx * 64, y: ty * 64, hitbox: false});
+                this.location.push({type: 'hitbox', x: (tx - 1) * 64, y: (ty - 1) * 64, w: 64, h: 64});
+            } else if(typeRoll >= 0.50 && typeRoll < 0.65) {
+                //3. СРЕДНИЙ КАМЕНЬ (tile5) — 15% шанс
+                this.location.push({type: 'object', texture: 'tile5', x: tx * 64, y: ty * 64, hitbox: false});
+                this.location.push({type: 'hitbox', x: (tx - 1) * 64, y: (ty - 1) * 64, w: 2 * 64, h: 64});
+            } else if(typeRoll >= 0.65 && typeRoll < 0.75) {
+                //4. БОЛЬШОЙ КАМЕНЬ (tile6) — 10% шанс
+                this.location.push({type: 'object', texture: 'tile6', x: tx * 64, y: ty * 64, hitbox: false});
+                this.location.push({type: 'hitbox', x: (tx - 1) * 64, y: (ty - 1) * 64, w: 2 * 64, h: 64});
+            } else if(typeRoll >= 0.75 && typeRoll < 0.85) {
+                //5. МАЛЕНЬКИЙ КАМЕНЬ (tile4) — 10% шанс
+                this.location.push({type: 'object', texture: 'tile4', x: tx * 64 + 66, y: ty * 64, hitbox: false});
+                this.location.push({type: 'hitbox', x: tx * 64, y: ty * 64, w: 32, h: 32});
+            } else if(typeRoll >= 0.85 && typeRoll < 0.93) {
+                //6. ТРАВКА (tile12) — НОВЫЙ ОБЪЕКТ! 8% шанс. БЕЗ хитбокса, чтобы сквозь неё ходить
+                this.location.push({type: 'tile', texture: 'tile8', x: tx, y: ty, hitbox: false});
+            } else {
+                //7. СЛЕД НА ЗЕМЛЕ (tile13) — НОВЫЙ ОБЪЕКТ! 7% шанс. БЕЗ хитбокса, чистый декор под ногами
+                this.location.push({type: 'tile', texture: 'tile9', x: tx, y: ty, hitbox: false});
+            }
+        }
 
         this.towerscopy = JSON.stringify({
             blue: {
-                mid: {x: 16*64, y: 16*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
-                top: {x: 32*64, y: 2*256, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
-                bottom: {x: 2*256, y: 32*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
-                throne: {x: 58*64, y: 58*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0}
+                throne: {x: 58*64, y: 58*64, hp: 2000, maxhp: 2000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                mid:    {x: 42*64, y: 42*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                top:    {x: 58*64, y: 32*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                bottom: {x: 32*64, y: 58*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0}
             },
             red: {
-                mid: {x: 5*256, y: 5*256, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
-                top: {x: 6*256, y: 6*256, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
-                bottom: {x: 7*256, y: 7*256, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
-                throne: {x: 8*256, y: 8*256, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0}
+                throne: {x: 4*64,  y: 4*64,  hp: 2000, maxhp: 2000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                mid:    {x: 22*64, y: 22*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                top:    {x: 32*64, y: 4*64,  hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0},
+                bottom: {x: 4*64,  y: 32*64, hp: 1000, maxhp: 1000, attackradius: 256, cooldown: 2000, damage: 20, lastattacktime: 0}
             }
         });
         this.towers = JSON.parse(this.towerscopy);
 
+        this.shop = {
+            healing: {item: 'healing', singleuse: true, price: 150}, //мелкая хилка +100 хп
+            elixir: {item: 'elixir', singleuse: true, price: 150}, //мелкая манка +100 маны
+            superhealing: {item: 'superhealing', singleuse: true, price: 300}, //большая хилка +250 хп
+            superelixir: {item: 'superelixir', singleuse: true, price: 300}, //большая манка +250 маны
+            teleport: {item: 'teleport', singleuse: false, cooldown: 60000, lastusetime: 0, price: 250}, //телепорт на базу
+            boots: {item: 'boots', singleuse: false, cooldown: 45000, lastusetime: 0, price: 300}, //скорость x2 на 5 сек
+            fastattack: {item: 'fastattack', singleuse: false, cooldown: 60000, lastusetime: 0, price: 700}, //куладун x0.5 на 10 сек
+            ultimate: {item: 'ultimate', singleuse: false, cooldown: 45000, lastusetime: 0, price: 450}, //ульта -200 хп
+            depletion: {item: 'depletion', singleuse: false, cooldown: 45000, lastusetime: 0, price: 450}, //сжирание маны -200 маны
+            stun: {item: 'stun', singleuse: false, cooldown: 50000, lastusetime: 0, price: 700} //стан на 5 сек
+        };
+
         this.clock = 0;
         this.bluescore = 0;
         this.redscore = 0;
+
+        this.fxevents = [];
     }
+
+
 
     //ws
     ondata(ws, type, data) {
@@ -237,7 +435,7 @@ class Room {
             player.speed = config.speed;
         }
 
-        this.clock = 1;
+        this.clock = 20;
         const buytimer = () => {
             this.clock--;
             if(this.clock <= 0) {
@@ -268,16 +466,74 @@ class Room {
 
     playerbuy(ws, data) {
         if(this.state == 'BUYPHASE') {
-            const prices = {
-                1: 1000,
-                2: 1500,
-                3: 2000,
-                4: 1500,
-                5: 1500
-            };
-            if(this.players[ws.playerid].gold >= prices[data.item] && this.players[ws.playerid].inventory[data.item] == false) {
-                this.players[ws.playerid].gold -= prices[data.item];
-                this.players[ws.playerid].inventory[data.item] = true;
+            let player = this.players[ws.playerid];
+            if(this.shop[data.item]) {
+                if(player.gold >= this.shop[data.item].price) {
+                    for(let slot in player.inventory) {
+                        if(player.inventory[slot] == null) {
+                            player.gold -= this.shop[data.item].price;
+                            player.inventory[slot] = { ...this.shop[data.item] };
+
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    useitem(ws, data) {
+        if(this.state != 'ROUND') return;
+
+        let player = this.players[ws.playerid];
+
+        if(player.isdead == true) return;
+
+        let item = player.inventory[data.key];
+        if(item != null) { //есть в инвентаре
+            if(item.singleuse == true) { //одноразовый
+                if(item.item == 'healing') {
+                    player.hp = Math.min(player.classesconfig[player.classid].hp, player.hp + 100);
+                }
+                if(item.item == 'elixir') {
+                    player.mana = Math.min(player.classesconfig[player.classid].mana, player.mana + 100);
+                }
+                if(item.item == 'superhealing') {
+                    player.hp = Math.min(player.classesconfig[player.classid].hp, player.hp + 250);
+                }
+                if(item.item == 'superelixir') {
+                    player.mana = Math.min(player.classesconfig[player.classid].mana, player.mana + 250);
+                }
+
+                player.inventory[data.key] = null;
+            } else { //многоразовый
+                const thistime = Date.now();
+
+                if(thistime - item.lastusetime < item.cooldown) { //кулдаун ещё не прошёл
+                    return;
+                }
+
+                item.lastusetime = thistime;
+
+                if(item.item == 'teleport') {
+                    if(player.team == 'blue') {
+                        player.x = 64*64 - config.x;
+                        player.y = 64*64 - config.y;
+                        while(player.checkmapcollision(this.location) || player.checkplayercollision(this.players) || player.checktowercollision(this.towers)) {
+                            player.x = 64*64 - config.x - 8;
+                            player.y = 64*64 - config.y - 8;
+                        }
+                    } else {
+                        player.x = config.x;
+                        player.y = config.y;
+                        while(player.checkmapcollision(this.location) || player.checkplayercollision(this.players) || player.checktowercollision(this.towers)) {
+                            player.x = config.x + 8;
+                            player.y = config.y + 8;
+                        }
+                    }
+                }
+
+
             }
         }
     }
@@ -424,12 +680,12 @@ class Room {
         if(enemy.hp == 0) { //единственный способ умереть
             player.gold += 500;
             enemy.isdead = true;
-            enemy.inventory = {
-                1: false,
-                2: false,
-                3: false,
-                4: false,
-                5: false
+            this.inventory = {
+                Q: null,
+                W: null,
+                E: null,
+                R: null,
+                T: null
             };
         }
     }
@@ -452,10 +708,12 @@ class Room {
                         let thistower = {x: tower.x, y: tower.y, radius: tower.attackradius};
                         let thisplayer = {x: p.x, y: p.y, radius: p.PLAYERRADIUS};
                         if(p.circlecollision(thistower, thisplayer)) {
-                            this.players[pid].hp = Math.max(100, this.players[pid].hp - tower.damage);
-                            tower.lastattacktime = thistime;
+                            if(this.players[pid] < 10) {
+                                this.players[pid].hp = Math.max(10, this.players[pid].hp - tower.damage);
+                                tower.lastattacktime = thistime;
 
-                            break;
+                                break;
+                            }
                         }
                     }
                 }
@@ -537,7 +795,7 @@ class Room {
 
             if(this.ticksec > 29 && this.state == 'ROUND' && this.players[id].isdead == false) {
                 this.players[id].hp = Math.min(this.players[id].classesconfig[this.players[id].classid].hp, this.players[id].hp + 2);
-                this.players[id].mana = Math.min(this.players[id].classesconfig[this.players[id].classid].mana, this.players[id].mana + 2);
+                this.players[id].mana = Math.min(this.players[id].classesconfig[this.players[id].classid].mana, this.players[id].mana + 4);
                 this.players[id].gold += 1;
             }
 
@@ -560,7 +818,11 @@ class Room {
         data.bluescore = this.bluescore;
         data.redscore = this.redscore;
 
+        data.fxevents = this.fxevents;
+
         this.sendtoroom('UPDATEROOM', data);
+
+        this.fxevents = [];
 
         if(this.ticksec > 29) { //секунда
             this.ticksec = 0;

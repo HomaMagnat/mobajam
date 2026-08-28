@@ -11,7 +11,7 @@ export class Renderer {
 
         this.animationtimer = 0;
         this.ANIMATION_SPEED = 0.15;
-        this.TOTAL_FRAMES = 8;        
+        this.TOTAL_FRAMES = 8;
         this.FRAME_SIZE = 256;
 
         this.textures = { //sprites, images, assets
@@ -91,19 +91,17 @@ export class Renderer {
     renderframe() {
         this.animationtimer += this.ANIMATION_SPEED;
 
-        //стереть со сбросом
         this.ctx.save();
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.restore();
 
-        //синхронизация камеры рендера с текущим игроком
         if(this.main.players[this.main.myid]) {
             this.camera.x = this.main.players[this.main.myid].x;
             this.camera.y = this.main.players[this.main.myid].y;
         }
 
-        let renderqueue = []; //всё что надо отрендерить
+        let renderqueue = [];
 
         this.main.location.forEach(obj => {
             if (obj.type === 'sector') {
@@ -112,24 +110,30 @@ export class Renderer {
                         let flatX = (obj.x + tx) * this.GRID_STEP;
                         let flatY = (obj.y + ty) * this.GRID_STEP;
                         let isopos = this.flattoiso(flatX, flatY);
-
                         this.ctx.drawImage(this.textures[obj.texture], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
                     }
                 }
             } else if (obj.type === 'tile') {
                 let isopos = this.flattoiso(obj.x * this.GRID_STEP, obj.y * this.GRID_STEP);
                 this.drawtile(obj, isopos);
+            } else if (obj.type === 'object') {
+                renderqueue.push({
+                    type: 'object',
+                    texture: obj.texture,
+                    x: obj.x,
+                    y: obj.y
+                });
             }
         });
 
-        for(let id in this.main.players) { //игроки
+        for(let id in this.main.players) {
             let p = this.main.players[id];
             if(!p.isdead) {
                 renderqueue.push({type: 'player', texture: 'class1_'+p.direction+'_'+p.animation+'_'+p.team, ...p});
             }
         }
 
-        for(let team in this.main.towers) { //башни
+        for(let team in this.main.towers) {
             for(let tower in this.main.towers[team]) {
                 if(this.main.towers[team][tower].hp != 0) {
                     renderqueue.push({type: 'tower', team: team, ...this.main.towers[team][tower]});
@@ -137,30 +141,22 @@ export class Renderer {
             }
         }
 
-        renderqueue.sort((a, b) => {
-            if(a.type === 'tile' && b.type !== 'tile') return -1;
-            if(b.type === 'tile' && a.type !== 'tile') return 1;
+        renderqueue.sort((a, b) => a.y - b.y);
 
-            return a.y - b.y;
-        }); //сортировка для правильных слоёв
+        renderqueue.forEach(obj => {
+            let isopos = this.flattoiso(obj.x, obj.y);
 
-        renderqueue.forEach(obj => { //отрисовка каждого объекта
-            let isopos = this.flattoiso(obj.x, obj.y); //преобразование плоских координат в изометрические
-
-            if(obj.type == 'tile') {
-                this.drawtile(obj, isopos);
-            }
-            if(obj.type == 'sector') {
-                this.drawsector(obj, isopos);
-            }
             if(obj.type == 'player') {
                 this.drawplayer(obj, isopos);
             }
             if(obj.type == 'tower') {
                 this.drawtower(obj, isopos);
             }
+            if(obj.type == 'object') {
+                this.drawobject(obj, isopos);
+            }
         });
-    }
+}
 
     flattoiso(flatX, flatY) {
         let offsetX = flatX - this.camera.x; //CAMERA
@@ -186,8 +182,21 @@ export class Renderer {
         this.ctx.drawImage(this.textures[obj.texture], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
     }
 
-    drawsector(obj, isopos) { //сектор залитый тайлами
-        
+    drawobject(obj, isopos) {
+        const img = this.textures[obj.texture];
+
+        if(img && img.complete) {
+            const width = img.naturalWidth;
+            const height = img.naturalHeight;
+
+            this.ctx.drawImage(
+                img,
+                isopos.x - (width / 2),
+                isopos.y - height + 32,
+                width,
+                height
+            );
+        }
     }
 
     drawplayer(obj, isopos) {
@@ -247,7 +256,7 @@ export class Renderer {
     }
 
     drawtower(obj, isopos) {
-        this.ctx.drawImage(this.textures['tile2'], isopos.x - (256 / 2), isopos.y, 256, 128);
+        //this.ctx.drawImage(this.textures['tile2'], isopos.x - (256 / 2), isopos.y, 256, 128);
         this.ctx.drawImage(this.textures['tower_'+obj.team], isopos.x - (512 / 2), isopos.y - 512+128, 512, 512);
 
         const barwidth = 200;

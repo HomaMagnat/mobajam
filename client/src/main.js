@@ -51,16 +51,23 @@ export class Main {
             redround: document.querySelector('.redround'),
             bluegame: document.querySelector('.bluegame'),
             redgame: document.querySelector('.redgame'),
-            item1: document.getElementById('item1'),
-            item2: document.getElementById('item2'),
-            item3: document.getElementById('item3'),
-            item4: document.getElementById('item4'),
-            item5: document.getElementById('item5')
+            Qitem: document.getElementById('qitem'),
+            Witem: document.getElementById('witem'),
+            Eitem: document.getElementById('eitem'),
+            Ritem: document.getElementById('ritem'),
+            Titem: document.getElementById('titem'),
+            tooltip: document.getElementById('tooltip'),
+            tooltiptitle: document.querySelector('.tooltip-title'),
+            tooltipdesc: document.querySelector('.tooltip-desc')
         };
 
         window.addEventListener('click', (e) => this.globalclick(e));
 
         this.ui.inputmessage.addEventListener('keydown', this.checkenter);
+        document.addEventListener('keydown', this.keydown);
+        this.ui.shop.addEventListener('mouseover', this.shopmouseover);
+        this.ui.shop.addEventListener('mousemove', this.shopmousemove);
+        this.ui.shop.addEventListener('mouseout', this.shopmouseout);
 
         this.renderer = new Renderer(this);
 
@@ -84,6 +91,10 @@ export class Main {
         } else {
             console.warn(`Method ${action} is not implemented in UI class`);
         }
+
+        if(e.target !== this.ui.inputmessage) {
+            this.ui.inputmessage.blur();
+        }
     }
 
     nicknamewarn() {
@@ -102,8 +113,52 @@ export class Main {
     }
 
     checkenter = (event) => {
-        if (event.key === 'Enter') {
+        if(event.key === 'Enter') {
             this.sendmessage();
+        }
+    }
+
+    shopmouseover = (e) => {
+        const product = e.target.closest('.product');
+        if (!product) return;
+
+        const title = product.getAttribute('data-title');
+        const desc = product.getAttribute('data-description');
+
+        if(title && desc) {
+            this.ui.tooltiptitle.textContent = title;
+            this.ui.tooltipdesc.textContent = desc;
+            this.ui.tooltip.classList.add('active');
+        }
+    }
+
+    shopmousemove = (e) => {
+        this.ui.tooltip.style.left = `${e.clientX - 5}px`;
+        this.ui.tooltip.style.top = `${e.clientY - 5}px`;
+    }
+
+    shopmouseout = (e) => {
+        const product = e.target.closest('.product');
+        if(!product) return;
+
+        this.ui.tooltip.classList.remove('active');
+    }
+
+    keydown = (e) => {
+        if(e.code == 'KeyQ') {
+            this.useitem('Q');
+        }
+        if(e.code == 'KeyW') {
+            this.useitem('W');
+        }
+        if(e.code == 'KeyE') {
+            this.useitem('E');
+        }
+        if(e.code == 'KeyR') {
+            this.useitem('R');
+        }
+        if(e.code == 'KeyT') {
+            this.useitem('T');
         }
     }
 
@@ -153,7 +208,7 @@ export class Main {
 
     //ws
     connect() {
-        this.ws = new WebSocket('wss://mobajam.hmxstudio.ru:9080');
+        this.ws = new WebSocket('wss://mobajam.hmxstudio.ru:9082');
         //this.ws.onopen = () => this.onopen();
         this.ws.onmessage = (event) => this.ondata(event.data);
 
@@ -274,7 +329,7 @@ export class Main {
 
     buyphase() {
         this.ui.tophint.textContent = 'ВРЕМЯ ЗАКУПКИ';
-        //this.ui.shop.style.display = 'block';
+        this.ui.shop.style.display = 'block';
         this.ui.youdied.style.display = 'none';
     }
 
@@ -310,7 +365,7 @@ export class Main {
 
     hidewin() {
         this.ui.bluegame.style.display = 'none';
-        this.ui.bluegame.style.display = 'none';
+        this.ui.redgame.style.display = 'none'; //ай ай ай лошара в билд пошло
     }
 
     //to server methods (send)
@@ -373,7 +428,11 @@ export class Main {
     }
 
     buy(item) {
-        this.serversend('BUY', {item: parseInt(item)});
+        this.serversend('BUY', {item: item});
+    }
+
+    useitem(key) {
+        this.serversend('USEITEM', {key: key});
     }
 
     //update data logic from server 30 tickrate
@@ -411,6 +470,21 @@ export class Main {
                 this.ui['item'+item].style.opacity = 0;
             }
         }*/
+
+        let inventory = data.players[this.myid].inventory;
+        for(let item in inventory) {
+            if(inventory[item] == null) {
+                this.ui[item+'item'].querySelector('.itemicon').style.background = 'none';
+                this.ui[item+'item'].querySelector('.itemicon').textContent = '';
+                this.ui[item+'item'].querySelector('.itemcooldown').width = '0%';
+            } else {
+                this.ui[item+'item'].querySelector('.itemicon').style.background = 'url(https://mobajam.hmxstudio.ru/src/textures/'+inventory[item].item+'.png)';
+                if(inventory[item].singleuse == false) {
+                    this.ui[item+'item'].querySelector('.itemicon').textContent = '';
+                    this.ui[item+'item'].querySelector('.itemcooldown').width = '0%';
+                }
+            }
+        }
 
         if(data.players[this.myid].isdead) {
             this.ui.youdied.style.display = 'block';

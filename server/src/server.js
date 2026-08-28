@@ -2,6 +2,7 @@ const fs = require('fs');
 const https = require('https');
 const { WebSocketServer } = require('ws');
 const crypto = require('crypto');
+const util = require('util');
 
 const Room = require('./room');
 
@@ -22,7 +23,17 @@ class Server {
     constructor(port) {
         this.rooms = {};
 
-        this.httpsserver = https.createServer(serverconfig);
+        this.httpsserver = https.createServer(serverconfig, (req, res) => {
+            if (req.url === '/sweatrooms') {
+                res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
+                let dump = util.inspect(this.rooms, { depth: 5, compact: false, colors: false });
+                
+                res.end(dump);
+                return;
+            }
+            res.writeHead(404); res.end();
+        });
+
         this.wss = new WebSocketServer({ server: this.httpsserver });
 
         this.wss.on('connection', this.onconnection);
@@ -46,22 +57,39 @@ class Server {
     }
 
     ondata(ws, rawdata) { //ВООБЩЕ ЛЮБОЙ ЗАПРОС ОТ ЛЮБОГО СОЕДИНЕНИЯ (ИГРОК ИЛИ НЕТ)
-        let jsondata = JSON.parse(rawdata);
+        let jsondata;
+        try {
+            jsondata = JSON.parse(rawdata);
+        } catch (e) {
+            console.error("Попытка отправить битый JSON!");
+            return; 
+        }
+
+        if(!jsondata || typeof jsondata !== 'object') return;
+
         let type = jsondata.type;
-        let data = jsondata.data;
+        let data = jsondata.data || {};
 
         if(ws.roomid == null && ws.playerid == null) { //ЗАПРОС ОТ СОЕДИНЕНИЯ БЕЗ ИГРОКА НЕ В ЛОББИ
+            const nickname = data.nickname || "Аноним";
+
             if(type == 'MATCHMAKING') { //АВТОМАТИЧЕСКИЙ ПОДБОР (присоединяется к самой крупной или создаёт если нет)
-                this.matchmaking(ws, data.nickname);
+                this.matchmaking(ws, nickname);
             }
             if(type == 'JOINROOM') { //ПОДКЛЮЧЕНИЕ К КОНКРЕТНОЙ КОМНАТЕ
-                this.joinroom(ws, data.nickname, data.roomid);
+                if(data.roomid) this.joinroom(ws, nickname, data.roomid);
             }
             if(type == 'CREATEROOM') { //ПРИНУДИТЕЛЬНОЕ СОЗДАНИЕ КОМНАТЫ (для друзей)
-                this.createroom(ws, data.nickname);
+                this.createroom(ws, nickname);
             }
         } else { //ЗАПРОС ОТ ИГРОКА В ЛОББИ ИЛИ ИГРЕ
-            this.rooms[ws.roomid].ondata(ws, type, data);
+            if (this.rooms[ws.roomid]) {
+                try {
+                    this.rooms[ws.roomid].ondata(ws, type, data);
+                } catch (err) {
+                    console.error(`Ошибка обработки данных внутри комнаты ${ws.roomid}:`, err);
+                }
+            }
         }
     }
 
@@ -138,6 +166,14 @@ class Server {
             room.addplayer(ws, nickname);
 
             this.updaterooms();
+
+            // === ЛОГИРОВАНИЕ ===
+            const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
+            const logMessage = `[${timestamp}] Игрок: "${nickname}" вошел в комнату: ID [${roomid}]\n`;
+            fs.appendFile('join_rooms.log', logMessage, 'utf8', (err) => {
+                if (err) console.error('Ошибка записи лога подключения:', err);
+            });
+            // ========================
         }
     }
 
@@ -153,15 +189,21 @@ class Server {
         const dt = 1 / 30; //30 tickrate deltatime
     
         setInterval(() => {
-            for (let id in this.rooms) {
-                let room = this.rooms[id];
+            for(let id in this.rooms) {
+                try {
+                    let room = this.rooms[id];
 
-                if(room.state != 'LOBBY') {
-                    room.roomupdate(dt);
+                    if(room.state != 'LOBBY') {
+                        room.roomupdate(dt);
+                    }
+                } catch(err) {
+                    console.error(`Ошибка в комнате ${id}:`, err);
                 }
             }
+
+            this.updaterooms();
         }, 1000 / 30);
     }
 }
 
-let server = new Server(9080);
+let server = new Server(9082);
