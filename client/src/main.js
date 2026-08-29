@@ -20,6 +20,7 @@ export class Main {
         this.players = {};
         this.towers = {};
         this.myid = '';
+        this.roomstate = '';
 
         this.gamesounds = {
             attack1: new Audio('https://mobajam.hmxstudio.ru/src/sound/attack.mp3'),
@@ -84,7 +85,8 @@ export class Main {
             Titem: document.getElementById('titem'),
             tooltip: document.getElementById('tooltip'),
             tooltiptitle: document.querySelector('.tooltip-title'),
-            tooltipdesc: document.querySelector('.tooltip-desc')
+            tooltipdesc: document.querySelector('.tooltip-desc'),
+            buffbox: document.querySelector('.buffbox'),
         };
 
         window.addEventListener('click', (e) => this.globalclick(e));
@@ -226,6 +228,10 @@ export class Main {
 
         const virtualclickX = e.offsetX / scale;
         const virtualclickY = e.offsetY / scale;
+
+        this.myclick = {
+            virtualclickX, virtualclickY
+        };
 
         const flattarget = this.renderer.isotoflat(virtualclickX, virtualclickY);
 
@@ -377,11 +383,13 @@ export class Main {
         this.ui.tophint.textContent = 'ВРЕМЯ ЗАКУПКИ';
         this.ui.shop.style.display = 'block';
         this.ui.youdied.style.display = 'none';
+        this.roomstate = 'BUYPHASE';
     }
 
     round() {
         this.ui.tophint.textContent = 'РАУНД';
         this.ui.shop.style.display = 'none';
+        this.roomstate = 'ROUND';
     }
 
     roundwin(data) {
@@ -431,6 +439,9 @@ export class Main {
         let data = {nickname: this.ui.nickname.value.trim(), roomid: roomid};
         this.serversend(type, data);
 
+        this.gamesounds.music.pause();
+
+        this.gamesounds.menu.currentTime = 0;
         this.gamesounds.menu.play();
     }
 
@@ -443,6 +454,9 @@ export class Main {
         let data = {nickname: this.ui.nickname.value.trim()};
         this.serversend(type, data);
 
+        this.gamesounds.music.pause();
+
+        this.gamesounds.menu.currentTime = 0;
         this.gamesounds.menu.play();
     }
 
@@ -455,6 +469,9 @@ export class Main {
         let data = {nickname: this.ui.nickname.value.trim()};
         this.serversend(type, data);
 
+        this.gamesounds.music.pause();
+
+        this.gamesounds.menu.currentTime = 0;
         this.gamesounds.menu.play();
     }
 
@@ -501,7 +518,7 @@ export class Main {
 
     useitem(key) {
         let thisitem = this.players[this.myid].inventory[key];
-        if(thisitem != null) {
+        if(thisitem != null && this.roomstate == 'ROUND') {
             if(thisitem.item == 'teleport' && thisitem.lastusetime == 0) {
                 this.playsound('teleport');
             }
@@ -595,6 +612,20 @@ export class Main {
                     }
                 }
             }
+        }
+
+        this.ui.buffbox.textContent = '';
+
+        if(data.thistime < myplayer.boots) {
+            this.ui.buffbox.textContent = 'Эффект скорости: '+Math.ceil((myplayer.boots - data.thistime) / 1000)+'с';
+        }
+
+        if(data.thistime < myplayer.fastattack) {
+            this.ui.buffbox.textContent = 'Быстрая атака: '+Math.ceil((myplayer.fastattack - data.thistime) / 1000)+'с';
+        }
+
+        if(data.thistime < myplayer.stunned) {
+            this.ui.buffbox.textContent = 'Вы оглушены: '+Math.ceil((myplayer.stunned - data.thistime) / 1000)+'с';
         }
 
         if(data.fxevents.length > 0) {

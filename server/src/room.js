@@ -433,6 +433,8 @@ class Room {
             player.hp = config.hp;
             player.mana = config.mana;
             player.speed = config.speed;
+            player.targetx = null;
+            player.targety = null;
 
             for(let item in player.inventory) {
                 if(player.inventory[item] != null) {
@@ -475,7 +477,7 @@ class Room {
     playerbuy(ws, data) {
         if(this.state == 'BUYPHASE') {
             let player = this.players[ws.playerid];
-            
+
             if(this.shop[data.item]) {
                 if(player.gold >= this.shop[data.item].price) {
                     for(let slot in player.inventory) {
@@ -531,11 +533,12 @@ class Room {
                     const config = player.classesconfig[player.classid];
                     let outstep = 8;
 
+                    player.targetx = null;
+                    player.targety = null;
+
                     if(player.team == 'blue') {
                         player.x = 64*64 - config.x;
                         player.y = 64*64 - config.y;
-                        player.targetx = null;
-                        player.targety = null;
                         player.direction = 'up';
                         player.animation = 'idle';
                         while(player.checkmapcollision(this.location) || player.checkplayercollision(this.players) || player.checktowercollision(this.towers)) {
@@ -743,7 +746,7 @@ class Room {
             player.inventory[player.itemused].lastusetime = Date.now(); //ставим кулдаун
 
             if(player.inventory[player.itemused].item == 'ultimate') {
-                enemy.hp = Math.max(0, enemy.hp - 200);
+                enemy.hp = Math.max(0, enemy.hp - 100);
                 this.fxevents.push({type: 'ultimate', sound: true});
             }
 
@@ -754,6 +757,8 @@ class Room {
 
             if(player.inventory[player.itemused].item == 'stun') {
                 enemy.stunned = Date.now() + 5000; //применяем стан
+                enemy.targetx = null;
+                enemy.targety = null;
                 this.fxevents.push({type: 'stun', sound: true});
             }
 
@@ -852,6 +857,8 @@ class Room {
         for(let id in this.players) {
             if(this.players[id].team == team) {
                 this.players[id].gold += 500;
+            } else {
+                this.players[id].gold += 300;
             }
         }
     }
@@ -910,7 +917,10 @@ class Room {
                     cooldown: activecooldown 
                 },
                 currentcooldown: currentcooldown,
-                itemused: this.players[id].itemused
+                itemused: this.players[id].itemused,
+                boots: this.players[id].boots,
+                fastattack: this.players[id].fastattack,
+                stunned: this.players[id].stunned
             }
         }
 
@@ -930,7 +940,7 @@ class Room {
             this.ticksec = 0;
         }
 
-        if(this.state == 'ROUND') {
+        //if(this.state == 'ROUND') {
             //проверка на победу в раунде
             if(this.towers.blue.throne.hp == 0) { //победа красных в раунде (по трону)
                 this.redscore++;
@@ -969,18 +979,18 @@ class Room {
             }
 
             //проверка на победу в игре
-            if(this.bluescore == 4) {
+            if(this.bluescore == 6) {
                 //победа синих
                 this.sendtoroom('GAMEWIN', {team: 'blue'});
                 return;
             }
-            if(this.redscore == 4) {
+            if(this.redscore == 6) {
                 //победа красных
                 this.sendtoroom('GAMEWIN', {team: 'red'});
                 return;
                 
             }
-        }
+        //}
     }
 }
 

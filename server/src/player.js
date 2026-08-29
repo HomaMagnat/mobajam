@@ -14,7 +14,7 @@ class Player {
         this.hp = 100; //setup by class
         this.mana = 100; //setup by class
         this.speed = 500; //setup by class
-        this.gold = 80000;
+        this.gold = 800;
         this.isdead = false;
 
         this.inventory = {

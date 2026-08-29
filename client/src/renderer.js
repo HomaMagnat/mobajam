@@ -97,8 +97,17 @@ export class Renderer {
         this.ctx.restore();
 
         if(this.main.players[this.main.myid]) {
-            this.camera.x = this.main.players[this.main.myid].x;
-            this.camera.y = this.main.players[this.main.myid].y;
+            if(this.main.players[this.main.myid].isdead == false) {
+                this.camera.x = this.main.players[this.main.myid].x;
+                this.camera.y = this.main.players[this.main.myid].y;
+            } else {
+                const nextperson = Object.keys(this.main.players).find(key => this.main.players[key].isdead == false && this.main.players[key].team == this.main.players[this.main.myid].team);
+
+                if(nextperson) {
+                    this.camera.x = this.main.players[nextperson].x;
+                    this.camera.y = this.main.players[nextperson].y;
+                }
+            }
         }
 
         let renderqueue = [];

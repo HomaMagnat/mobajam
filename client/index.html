@@ -906,6 +906,16 @@ left: 0;
 right: 0;
 }
 
+.buffbox {
+position: absolute;
+bottom: 200px;
+text-align: center;
+font-size: 20px;
+text-shadow: 2px 2px 2px black;
+left: 0;
+right: 0;
+}
+
 .blueround {
 position: absolute;
 top: 200px;
@@ -984,6 +994,13 @@ left: 10px;
 width: 400px;
 height: 200px;
 filter: drop-shadow(0px 0px 5px #00000094);
+position: absolute;
+bottom: -10px;
+left: -30px;
+width: 300px;
+height: 200px;
+filter: drop-shadow(0px 0px 5px #00000094);
+scale: 80%;
 }
 
 .shop {
@@ -1230,7 +1247,7 @@ visibility: visible;
     </div>
 
     <div class="game" style="display: none;">
-        <div class="gameui">
+        <!--<div class="gameui">-->
             <div class="topui">
                 <div class="bluescore"></div><div class="clock"></div><div class="redscore"></div>
                 <div class="tophint"></div>
@@ -1238,20 +1255,21 @@ visibility: visible;
             <div class="bottomui">
                 <div class="cooldownbox"><div class="mycooldown"></div></div>
                 <div class="inventorybox">
-                    <div class="inventoryslot" id="qitem"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
-                    <div class="inventoryslot" id="witem"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
-                    <div class="inventoryslot" id="eitem"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
-                    <div class="inventoryslot" id="ritem"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
-                    <div class="inventoryslot" id="titem"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
+                    <div class="inventoryslot" id="qitem" data-action="useitem" data-id="Q"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
+                    <div class="inventoryslot" id="witem" data-action="useitem" data-id="W"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
+                    <div class="inventoryslot" id="eitem" data-action="useitem" data-id="E"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
+                    <div class="inventoryslot" id="ritem" data-action="useitem" data-id="R"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
+                    <div class="inventoryslot" id="titem" data-action="useitem" data-id="T"><div class="itemicon">60</div><div class="itemcooldown"></div></div>
                 </div>
                 <div class="hpbox"><div class="myhpvalue"></div><div class="myhp"></div></div>
                 <div class="manabox"><div class="mymanavalue"></div><div class="mymana"></div></div>
             </div>
             <div class="goldbox"><div class="mygold"></div></div>
+            <div class="buffbox"></div>
             <div class="youdied" style="display: none;">Вас убили. Дождитесь следующего раунда</div>
             <div class="blueround" style="display: none;">Синие выиграли раунд</div>
             <div class="redround" style="display: none;">Красные выиграли раунд</div>
-        </div>
+        <!--</div>-->
         <div class="shop" style="display: none;">
             <div class="product" data-title="Малое зелье здоровья" data-description="Восстанавливает 100 единиц здоровья"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/healing.png);"></div><div class="productprice" data-action="buy" data-id="healing">150</div></div>
             <div class="product" data-title="Малое зелье маны" data-description="Восстанавливает 100 единиц маны"><div class="producticon" style="background: url(https://mobajam.hmxstudio.ru/src/textures/elixir.png);"></div><div class="productprice" data-action="buy" data-id="elixir">150</div></div>
