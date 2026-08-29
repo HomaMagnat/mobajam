@@ -35,8 +35,15 @@ export class Main {
             tower: new Audio('https://mobajam.hmxstudio.ru/src/sound/tower.mp3'),
             ultimate: new Audio('https://mobajam.hmxstudio.ru/src/sound/ultimate.mp3'),
             win: new Audio('https://mobajam.hmxstudio.ru/src/sound/win.mp3'),
+            kill1: new Audio('https://mobajam.hmxstudio.ru/src/sound/kill.mp3'),
+            kill2: new Audio('https://mobajam.hmxstudio.ru/src/sound/kill2.mp3'),
+            kill3: new Audio('https://mobajam.hmxstudio.ru/src/sound/kill3.mp3'),
+            buy: new Audio('https://mobajam.hmxstudio.ru/src/sound/buy.mp3'),
+            menu: new Audio('https://mobajam.hmxstudio.ru/src/sound/menu.mp3'),
         };
 
+        this.gamesounds.menu.loop = true;
+        this.gamesounds.menu.volume = 0.1;
         this.gamesounds.music.loop = true;
         this.gamesounds.music.volume = 0.1;
 
@@ -168,6 +175,7 @@ export class Main {
     }
 
     keydown = (e) => {
+        if(document.activeElement === this.ui.inputmessage) return;
         if(e.code == 'KeyQ') {
             this.useitem('Q');
         }
@@ -269,6 +277,11 @@ export class Main {
     onclose() {
         this.switchscreen('mainmenu');
         this.showdisconnect();
+
+        this.gamesounds.music.pause();
+
+        this.gamesounds.menu.currentTime = 0;
+        this.gamesounds.menu.play();
     }
 
     exitlobby() {
@@ -339,11 +352,16 @@ export class Main {
 
     matchstart(data) {
         this.switchscreen('game');
+
         const chatbox = document.querySelector('.chatbox');
         const gamechat = document.querySelector('.gamechat');
         gamechat.appendChild(chatbox); 
-        this.requestid = requestAnimationFrame(this.mainloop);
 
+        this.requestid = requestAnimationFrame(this.mainloop);
+        
+        this.gamesounds.menu.pause();
+
+        this.gamesounds.music.currentTime = 0;
         this.gamesounds.music.play();
     }
 
@@ -412,6 +430,8 @@ export class Main {
         let type = 'JOINROOM';
         let data = {nickname: this.ui.nickname.value.trim(), roomid: roomid};
         this.serversend(type, data);
+
+        this.gamesounds.menu.play();
     }
 
     createroom() {
@@ -422,6 +442,8 @@ export class Main {
         let type = 'CREATEROOM';
         let data = {nickname: this.ui.nickname.value.trim()};
         this.serversend(type, data);
+
+        this.gamesounds.menu.play();
     }
 
     matchmaking() {
@@ -432,6 +454,8 @@ export class Main {
         let type = 'MATCHMAKING';
         let data = {nickname: this.ui.nickname.value.trim()};
         this.serversend(type, data);
+
+        this.gamesounds.menu.play();
     }
 
     //PLAYER (SERVER DATA ROUTER)
@@ -455,14 +479,24 @@ export class Main {
             this.serversend('SENDMESSAGE', {message: message});
         }
         this.ui.inputmessage.value = '';
+        this.ui.inputmessage.blur();
     }
 
     ready() {
         this.serversend('READY', {});
     }
 
-    buy(item) {
+    buy(item, e) {
         this.serversend('BUY', {item: item});
+
+        let buybtn = e.target;
+        let price = parseInt(buybtn.textContent);
+
+        if(this.players[this.myid].gold >= price) {
+            if(Object.values(this.players[this.myid].inventory).includes(null)) {
+                this.playsound('buy');
+            }
+        }
     }
 
     useitem(key) {
@@ -493,7 +527,7 @@ export class Main {
     //update data logic from server 30 tickrate
     updateroom(data) {
         for(const [playerid, serverprops] of Object.entries(data.players)) {
-            if (this.players[playerid]) {
+            if(this.players[playerid]) {
                 this.players[playerid] = {
                     ...this.players[playerid],
                     ...serverprops
@@ -525,12 +559,14 @@ export class Main {
             if(inventory[item] == null) {
                 this.ui[item+'item'].querySelector('.itemicon').style.background = 'none';
                 this.ui[item+'item'].querySelector('.itemicon').textContent = '';
-                this.ui[item+'item'].querySelector('.itemcooldown').width = '0%';
+                this.ui[item+'item'].querySelector('.itemicon').style.outline = 'none';
+                this.ui[item+'item'].querySelector('.itemcooldown').style.width = '0%';
             } else {
                 this.ui[item+'item'].querySelector('.itemicon').style.background = 'url(https://mobajam.hmxstudio.ru/src/textures/'+inventory[item].item+'.png)';
                 if(inventory[item].singleuse == true) {
                     this.ui[item+'item'].querySelector('.itemicon').textContent = '';
-                    this.ui[item+'item'].querySelector('.itemcooldown').width = '0%';
+                    this.ui[item+'item'].querySelector('.itemcooldown').style.width = '0%';
+                    this.ui[item+'item'].querySelector('.itemicon').style.outline = 'none';
                 } else {
                     const timepassed = data.thistime - inventory[item].lastusetime;
                     const itemcooldown = inventory[item].cooldown;
@@ -547,6 +583,16 @@ export class Main {
                         this.ui[item+'item'].querySelector('.itemcooldown').style.width = '0%';
                         this.players[this.myid].inventory[item].lastusetime = 0;
                     }
+
+                    if(myplayer.itemused != '') {
+                        if(item == myplayer.itemused) {
+                            this.ui[item+'item'].querySelector('.itemicon').style.outline = '2px solid white';
+                        } else {
+                            this.ui[item+'item'].querySelector('.itemicon').style.outline = 'none';
+                        }
+                    } else {
+                        this.ui[item+'item'].querySelector('.itemicon').style.outline = 'none';
+                    }
                 }
             }
         }
@@ -555,6 +601,9 @@ export class Main {
             data.fxevents.forEach(fx => {
                 if(fx.sound == true) {
                     this.playsound(fx.type);
+                }
+                if(fx.visual == true) {
+
                 }
             });
         }

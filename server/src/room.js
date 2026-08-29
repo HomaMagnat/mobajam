@@ -220,12 +220,12 @@ class Room {
             elixir: {item: 'elixir', singleuse: true, price: 150}, //мелкая манка +100 маны
             superhealing: {item: 'superhealing', singleuse: true, price: 300}, //большая хилка +250 хп
             superelixir: {item: 'superelixir', singleuse: true, price: 300}, //большая манка +250 маны
-            teleport: {item: 'teleport', singleuse: false, cooldown: 60000, lastusetime: 0, price: 250}, //телепорт на базу
-            boots: {item: 'boots', singleuse: false, cooldown: 45000, lastusetime: 0, price: 300}, //скорость x2 на 5 сек
-            fastattack: {item: 'fastattack', singleuse: false, cooldown: 60000, lastusetime: 0, price: 700}, //куладун x0.5 на 5 сек
-            ultimate: {item: 'ultimate', singleuse: false, cooldown: 45000, lastusetime: 0, price: 450}, //ульта -200 хп
-            depletion: {item: 'depletion', singleuse: false, cooldown: 45000, lastusetime: 0, price: 450}, //сжирание маны -200 маны
-            stun: {item: 'stun', singleuse: false, cooldown: 50000, lastusetime: 0, price: 700} //стан на 5 сек
+            teleport: {item: 'teleport', singleuse: false, active: false, cooldown: 60000, lastusetime: 0, price: 250}, //телепорт на базу
+            boots: {item: 'boots', singleuse: false, active: false, cooldown: 45000, lastusetime: 0, price: 300}, //скорость x2 на 5 сек
+            fastattack: {item: 'fastattack', singleuse: false, active: false, cooldown: 60000, lastusetime: 0, price: 700}, //куладун x0.5 на 5 сек
+            ultimate: {item: 'ultimate', singleuse: false, active: false, cooldown: 45000, lastusetime: 0, price: 450}, //ульта -200 хп
+            depletion: {item: 'depletion', singleuse: false, active: false, cooldown: 45000, lastusetime: 0, price: 450}, //сжирание маны -200 маны
+            stun: {item: 'stun', singleuse: false, active: false, cooldown: 50000, lastusetime: 0, price: 700} //стан на 5 сек
         };
 
         this.clock = 0;
@@ -475,6 +475,7 @@ class Room {
     playerbuy(ws, data) {
         if(this.state == 'BUYPHASE') {
             let player = this.players[ws.playerid];
+            
             if(this.shop[data.item]) {
                 if(player.gold >= this.shop[data.item].price) {
                     for(let slot in player.inventory) {
@@ -523,7 +524,10 @@ class Room {
                     return;
                 }
 
-                if(item.item == 'teleport') {
+                if(item.item == 'teleport') { //на нас
+                    if(player.stunned && Date.now() < player.stunned) {
+                        return;
+                    }
                     const config = player.classesconfig[player.classid];
                     let outstep = 8;
 
@@ -552,29 +556,26 @@ class Room {
                     item.lastusetime = thistime;
                 }
 
-                if(item.item == 'ultimate') {
-                    player.ultimate = 200; //применится и сбросится при следующем ударе во врага
-                    player.itemused = data.key;
-                }
-
-                if(item.item == 'depletion') {
-                    player.depletion = 200; //применится и сбросится при следующем ударе во врага
-                    player.itemused = data.key;
-                }
-
-                if(item.item == 'boots') {
+                if(item.item == 'boots') { //на нас
                     player.boots = thistime + 5000; //для этого игрока (в обработке скорости передвижения)
                     item.lastusetime = thistime;
                 }
 
-                if(item.item == 'fastattack') {
+                if(item.item == 'fastattack') { //на нас
                     player.fastattack = thistime + 5000; //для этого игрока (в обработке кулдауна удара)
                     item.lastusetime = thistime;
                 }
 
-                if(item.item == 'stun') {
-                    player.tostun = true; //применится и начнётся при следующем ударе во врага
-                    player.itemused = data.key;
+                if(item.item == 'ultimate' || item.item == 'depletion' || item.item == 'stun') { //на врага
+                    if(player.itemused == '') {
+                        player.itemused = data.key;
+                    } else {
+                        if(player.itemused != data.key) {
+                            player.itemused = data.key;
+                        } else { //если тот же то снимаем активность
+                            player.itemused = '';
+                        }
+                    }
                 }
             }
         }
@@ -736,7 +737,30 @@ class Room {
         player.lastattacktime = thistime;
 
         player.mana = Math.max(0, player.mana - config.manacost);
-        enemy.hp = Math.max(0, enemy.hp - config.damage - player.ultimate);
+        enemy.hp = Math.max(0, enemy.hp - config.damage);
+
+        if(player.itemused != '') {
+            player.inventory[player.itemused].lastusetime = Date.now(); //ставим кулдаун
+
+            if(player.inventory[player.itemused].item == 'ultimate') {
+                enemy.hp = Math.max(0, enemy.hp - 200);
+                this.fxevents.push({type: 'ultimate', sound: true});
+            }
+
+            if(player.inventory[player.itemused].item == 'depletion') {
+                enemy.mana = Math.max(0, enemy.mana - 200);
+                this.fxevents.push({type: 'depletion', sound: true});
+            }
+
+            if(player.inventory[player.itemused].item == 'stun') {
+                enemy.stunned = Date.now() + 5000; //применяем стан
+                this.fxevents.push({type: 'stun', sound: true});
+            }
+
+            player.itemused = '';
+        } else { //если ни один из последних предметов не активный, то просто звук атаки
+            this.fxevents.push({type: 'attack' + (Math.floor(Math.random() * 3) + 1), sound: true});
+        }
 
         if(enemy.hp == 0) { //единственный способ умереть
             player.gold += 500;
@@ -748,32 +772,9 @@ class Room {
                 R: null,
                 T: null
             };
-        }
 
-        if(player.ultimate > 0) {
-            player.ultimate = 0;
-            player.inventory[player.itemused].lastusetime = Date.now();
-            this.fxevents.push({type: 'ultimate', sound: true});
-            return;
+            this.fxevents.push({type: 'kill' + (Math.floor(Math.random() * 3) + 1), sound: true});
         }
-
-        if(player.depletion > 0) {
-            enemy.mana = Math.max(0, enemy.mana - player.depletion);
-            player.depletion = 0;
-            player.inventory[player.itemused].lastusetime = Date.now();
-            this.fxevents.push({type: 'depletion', sound: true});
-            return;
-        }
-
-        if(player.tostun == true) {
-            enemy.stunned = Date.now() + 5000;
-            player.tostun = false;
-            player.inventory[player.itemused].lastusetime = Date.now();
-            this.fxevents.push({type: 'stun', sound: true});
-            return;
-        }
-
-        this.fxevents.push({type: 'attack' + (Math.floor(Math.random() * 3) + 1), sound: true});
     }
 
     towerautoattack() {
@@ -908,7 +909,8 @@ class Room {
                     ...this.players[id].classesconfig[this.players[id].classid],
                     cooldown: activecooldown 
                 },
-                currentcooldown: currentcooldown
+                currentcooldown: currentcooldown,
+                itemused: this.players[id].itemused
             }
         }
 

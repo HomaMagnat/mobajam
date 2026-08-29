@@ -201,7 +201,7 @@ class Server {
                 }
             }
 
-            this.updaterooms();
+            //this.updaterooms();
         }, 1000 / 30);
     }
 }

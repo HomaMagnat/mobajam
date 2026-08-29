@@ -25,22 +25,6 @@ class Player {
             T: null
         };
 
-        /*this.inventory = {
-            Q: {item: '', singleuse: true, cooldown: 1000, lastusetime: 0},
-            W: {item: '', singleuse: true, cooldown: 1000, lastusetime: 0},
-            E: {item: '', singleuse: true, cooldown: 1000, lastusetime: 0},
-            R: {item: '', singleuse: true, cooldown: 1000, lastusetime: 0},
-            T: {item: '', singleuse: true, cooldown: 1000, lastusetime: 0}
-        };*/
-        /*
-        this.classesconfig = { //cooldown - per attack ms
-            1: {x: 300, y: 100, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20},
-            2: {x: 450, y: 100, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20},
-            3: {x: 100, y: 300, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20},
-            4: {x: 100, y: 450, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20},
-            5: {x: 100, y: 100, hp: 800, mana: 800, speed: 500, attackradius: 128, cooldown: 800, damage: 30, manacost: 20}
-        };
-        */
         this.classesconfig = {
             1: {x: 300, y: 100, hp: 850, mana: 700, speed: 350, attackradius: 140, cooldown: 800,  damage: 30, manacost: 20},
             2: {x: 450, y: 100, hp: 600,  mana: 400, speed: 400, attackradius: 200, cooldown: 600,  damage: 25, manacost: 10},
@@ -56,14 +40,8 @@ class Player {
 
         this.itemused = '';
 
-        this.ultimate = 0; //current abilities
-        this.depletion = 0;
-
-        this.tostun = false;
-
         this.boots = Date.now();
         this.fastattack = Date.now();
-
         this.stunned = Date.now(); //current disabilities
 
         this.GRIDSTEP = 64; //hitboxes sizes
