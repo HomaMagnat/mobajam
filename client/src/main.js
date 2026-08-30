@@ -248,7 +248,7 @@ export class Main {
 
     //ws
     connect() {
-        this.ws = new WebSocket('wss://mobajam.hmxstudio.ru:9082');
+        this.ws = new WebSocket('wss://mobajam.hmxstudio.ru:9080');
         //this.ws.onopen = () => this.onopen();
         this.ws.onmessage = (event) => this.ondata(event.data);
 
