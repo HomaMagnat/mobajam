@@ -22,6 +22,13 @@ export class Main {
         this.myid = '';
         this.roomstate = '';
 
+        this.clickmarker = {
+            x: 0,
+            y: 0,
+            time: 0,
+            active: false
+        };
+
         this.gamesounds = {
             attack1: new Audio('https://mobajam.hmxstudio.ru/src/sound/attack.mp3'),
             attack2: new Audio('https://mobajam.hmxstudio.ru/src/sound/attack2.mp3'),
@@ -235,6 +242,11 @@ export class Main {
 
         const flattarget = this.renderer.isotoflat(virtualclickX, virtualclickY);
 
+        this.clickmarker.x = flattarget.x;
+        this.clickmarker.y = flattarget.y;
+        this.clickmarker.time = performance.now();
+        this.clickmarker.active = true;
+
         this.serversend('GAMECLICK', {
             targetx: Math.floor(flattarget.x),
             targety: Math.floor(flattarget.y)
@@ -384,12 +396,16 @@ export class Main {
         this.ui.shop.style.display = 'block';
         this.ui.youdied.style.display = 'none';
         this.roomstate = 'BUYPHASE';
+
+        this.clickmarker.active = false;
     }
 
     round() {
         this.ui.tophint.textContent = 'РАУНД';
         this.ui.shop.style.display = 'none';
         this.roomstate = 'ROUND';
+
+        this.clickmarker.active = false;
     }
 
     roundwin(data) {

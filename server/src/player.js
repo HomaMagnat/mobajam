@@ -77,15 +77,22 @@ class Player {
         let newx = currentspeed * dt * Math.cos(angle);
         let newy = currentspeed * dt * Math.sin(angle);
 
+        let blockedx = false;
+        let blockedy = false;
+
         this.x += newx;
         if(this.checkmapcollision(location) || this.checkplayercollision(players) || this.checktowercollision(towers)) {
             this.x -= newx;
-            this.stop();
+            blockedx = true;
         }
 
         this.y += newy;
         if(this.checkmapcollision(location) || this.checkplayercollision(players) || this.checktowercollision(towers)) {
             this.y -= newy;
+            blockedy = true;
+        }
+
+        if(blockedx && blockedy) {
             this.stop();
         }
     }
@@ -97,9 +104,7 @@ class Player {
     }
 
     checkmapcollision(location) {
-        const hitboxes = location.filter(item => item.hitbox === true || item.type === 'hitbox');
-
-        return hitboxes.some(hitbox => {
+        return location.some(hitbox => {
             let x = hitbox.x;
             let y = hitbox.y;
             let w = hitbox.w || 1;

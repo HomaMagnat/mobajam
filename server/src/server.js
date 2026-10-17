@@ -21,6 +21,8 @@ const serverconfig = {
 
 class Server {
     constructor(port) {
+        this.TICKRATE = 30;
+
         this.rooms = {};
 
         this.httpsserver = https.createServer(serverconfig, (req, res) => {
@@ -48,6 +50,7 @@ class Server {
     onconnection = (ws, req) => { //СЮДА ПРИЛЕТАЕТ ЛЮБОЕ СОЕДИНЕНИЕ (ЕЩЁ НЕ ИГРОК)
         ws.roomid = null;
         ws.playerid = null;
+        ws._closed = false;
 
         ws.on('message', (rawdata) => this.ondata(ws, rawdata));
         ws.on('close', () => this.onclose(ws));
@@ -94,6 +97,9 @@ class Server {
     }
 
     onclose(ws) { //ЛЮБОЕ ОТКЛЮЧЕНИЕ СОЕДИНЕНИЯ (ИГРОК ИЛИ НЕТ)
+        if(ws._closed) return;
+        ws._closed = true;
+
         if(ws.roomid == null && ws.playerid == null) { //ЗАПРОС ОТ СОЕДИНЕНИЯ БЕЗ ИГРОКА НЕ В ЛОББИ
             //если его нигде не было, то похую вообще
         } else { //ЗАПРОС ОТ ИГРОКА В ЛОББИ ИЛИ ИГРЕ
@@ -102,6 +108,8 @@ class Server {
     }
 
     playerleave(ws) {
+        if(!this.rooms[ws.roomid]) return;
+        
         if(Object.keys(this.rooms[ws.roomid].players).length < 2) { //уходит последний (в данный момент 1 он)
             delete this.rooms[ws.roomid];
         } else { //уходит не последний
@@ -186,7 +194,7 @@ class Server {
 
     //loop
     startglobaltick() {
-        const dt = 1 / 30; //30 tickrate deltatime
+        const dt = 1 / this.TICKRATE; //tickrate deltatime
     
         setInterval(() => {
             for(let id in this.rooms) {
@@ -202,7 +210,7 @@ class Server {
             }
 
             //this.updaterooms();
-        }, 1000 / 30);
+        }, 1000 / this.TICKRATE);
     }
 }
 

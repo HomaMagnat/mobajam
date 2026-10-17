@@ -15,12 +15,12 @@ class Room {
             BUY: (ws, data) => this.playerbuy(ws, data),
             USEITEM: (ws, data) => this.useitem(ws, data)
         };
-        this.ticksec = 0;
+        this.dtsec = 0;
 
         this.location = [
             {type: 'sector', texture: 'tile1', x: 0, y: 0, w: 64, h: 64, hitbox: false},
 
-            //Твой сглаженный диагональный МИД
+            //мид
             {type: 'sector', texture: 'tile3', x: 6,  y: 6,  w: 8, h: 8, hitbox: false},
             {type: 'sector', texture: 'tile3', x: 12, y: 12, w: 7, h: 7, hitbox: false},
             {type: 'sector', texture: 'tile3', x: 17, y: 17, w: 7, h: 7, hitbox: false},
@@ -32,11 +32,11 @@ class Room {
             {type: 'sector', texture: 'tile3', x: 47, y: 47, w: 7, h: 7, hitbox: false},
             {type: 'sector', texture: 'tile3', x: 52, y: 52, w: 8, h: 8, hitbox: false},
 
-            //ТОП линия
+            //топ
             {type: 'sector', texture: 'tile3', x: 6,  y: 6,  w: 52, h: 4, hitbox: false},
             {type: 'sector', texture: 'tile3', x: 54, y: 6,  w: 4,  h: 52, hitbox: false},
 
-            //БОТ линия
+            //бот
             {type: 'sector', texture: 'tile3', x: 6,  y: 6,  w: 4,  h: 52, hitbox: false},
             {type: 'sector', texture: 'tile3', x: 6,  y: 54, w: 52, h: 4, hitbox: false},
 
@@ -102,16 +102,13 @@ class Room {
 
 
 
-        //1. Точные координаты башен для полной очистки зоны вокруг них (в тайлах)
         const towerPositions = [
-            {x: 42, y: 42}, {x: 58, y: 32}, {x: 32, y: 58}, // Синие
-            {x: 22, y: 22}, {x: 32, y: 4},  {x: 4,  y: 32}  // Красные
+            {x: 42, y: 42}, {x: 58, y: 32}, {x: 32, y: 58},
+            {x: 22, y: 22}, {x: 32, y: 4},  {x: 4,  y: 32}
         ];
 
-        //2. Сюда сохраняем координаты, чтобы объекты не наезжали друг на друга
         let placedObjects = [];
 
-        //Сколько ВСЕГО объектов раскидать, чтобы карта была живой, но свободной
         const TOTAL_OBJECTS_TO_SPAWN = 240;
 
         let spawnedCount = 0;
@@ -120,30 +117,27 @@ class Room {
         while(spawnedCount < TOTAL_OBJECTS_TO_SPAWN && attempts < 3000) {
             attempts++;
 
-            //Случайная точка внутри игрового поля
             let tx = Math.floor(Math.random() * 60) + 4;
             let ty = Math.floor(Math.random() * 60) + 4;
 
             // --- ЗАЩИТА ТРОПИНОК, БАЗ И БАШЕН ---
-            if(tx <= 12 && ty <= 12) continue;   // Спавн красных чист
-            if(tx >= 51 && ty >= 51) continue;   // Спавн синих чист
+            if(tx <= 12 && ty <= 12) continue;
+            if(tx >= 51 && ty >= 51) continue;
 
-            //Топ линия
+            //топ
             if(ty >= 5 && ty <= 10 && tx >= 5 && tx <= 58) continue;
             if(tx >= 53 && tx <= 58 && ty >= 5 && ty <= 58) continue;
 
-            //Бот линия
+            //бот
             if(tx >= 5 && tx <= 10 && ty >= 5 && ty <= 58) continue;
             if(ty >= 53 && ty <= 58 && tx >= 5 && tx <= 58) continue;
 
-            //Мид линия
+            //мид
             if(Math.abs(tx - ty) <= 5 && tx >= 5 && tx <= 58) continue;
 
-            //Проходы поперек мида
             if(tx >= 29 && tx <= 33 && ty >= 12 && ty <= 51) continue;
             if(ty >= 29 && ty <= 33 && tx >= 12 && tx <= 51) continue;
 
-            //Очистка зоны вокруг башен
             let nearTower = false;
             for(let tower of towerPositions) {
                 let dist = Math.max(Math.abs(tx - tower.x), Math.abs(ty - tower.y));
@@ -154,7 +148,6 @@ class Room {
             }
             if(nearTower) continue;
 
-            //Проверка, чтобы объекты не слипались в одну точку (зазор в 3 клетки)
             let tooClose = false;
             for(let oldObj of placedObjects) {
                 let distance = Math.max(Math.abs(tx - oldObj.x), Math.abs(ty - oldObj.y));
@@ -191,13 +184,15 @@ class Room {
                 this.location.push({type: 'object', texture: 'tile4', x: tx * 64 + 66, y: ty * 64, hitbox: false});
                 this.location.push({type: 'hitbox', x: tx * 64, y: ty * 64, w: 32, h: 32});
             } else if(typeRoll >= 0.85 && typeRoll < 0.93) {
-                //6. ТРАВКА (tile12) — НОВЫЙ ОБЪЕКТ! 8% шанс. БЕЗ хитбокса, чтобы сквозь неё ходить
+                //6. ТРАВКА (tile12) — 8% шанс. БЕЗ хитбокса, чтобы сквозь неё ходить
                 this.location.push({type: 'tile', texture: 'tile8', x: tx, y: ty, hitbox: false});
             } else {
-                //7. СЛЕД НА ЗЕМЛЕ (tile13) — НОВЫЙ ОБЪЕКТ! 7% шанс. БЕЗ хитбокса, чистый декор под ногами
+                //7. СЛЕД НА ЗЕМЛЕ (tile13) — 7% шанс. БЕЗ хитбокса, чистый декор под ногами
                 this.location.push({type: 'tile', texture: 'tile9', x: tx, y: ty, hitbox: false});
             }
         }
+
+        this.hitboxes = this.location.filter(item => item.hitbox === true || item.type === 'hitbox');
 
         this.towerscopy = JSON.stringify({
             blue: {
@@ -389,6 +384,8 @@ class Room {
     }
 
     playerready(ws) {
+        if(this.state !== 'LOBBY') return; //только в лобби
+
         this.players[ws.playerid].isready = true;
         this.checkready();
         this.sendlobbystate();
@@ -403,7 +400,7 @@ class Room {
 
         let readycount = allplayers.filter(p => p.isready === true).length;
 
-        if (readycount === allplayers.length) {
+        if(readycount === allplayers.length) {
             this.startmatch();
         }
     }
@@ -422,6 +419,7 @@ class Room {
         for(let id in this.players) {
             const player = this.players[id];
             const config = player.classesconfig[player.classid];
+
             player.isdead = false;
             if(player.team == 'blue') {
                 player.x = 64*64 - config.x;
@@ -443,18 +441,12 @@ class Room {
                     }
                 }
             }
+
+            player.itemused = '';
         }
 
         this.clock = 20;
-        const buytimer = () => {
-            this.clock--;
-            if(this.clock <= 0) {
-                this.startround();
-            } else {
-                setTimeout(buytimer, 1000);
-            }
-        }
-        setTimeout(buytimer, 1000);
+        this.dtsec = 0;
 
         this.sendtoroom('BUYPHASE', {});
     }
@@ -462,14 +454,7 @@ class Room {
     startround() {
         this.state = 'ROUND';
         this.clock = 0;
-
-        const roundtimer = () => {
-            if(this.state == 'ROUND') {
-                this.clock++;
-                setTimeout(roundtimer, 1000);
-            }
-        }
-        setTimeout(roundtimer, 1000);
+        this.dtsec = 0;
 
         this.sendtoroom('ROUND', {});
     }
@@ -541,7 +526,7 @@ class Room {
                         player.y = 64*64 - config.y;
                         player.direction = 'up';
                         player.animation = 'idle';
-                        while(player.checkmapcollision(this.location) || player.checkplayercollision(this.players) || player.checktowercollision(this.towers)) {
+                        while(player.checkmapcollision(this.hitboxes) || player.checkplayercollision(this.players) || player.checktowercollision(this.towers)) {
                             player.x = 64*64 - config.x - outstep;
                             player.y = 64*64 - config.y - outstep;
                             outstep++;
@@ -549,7 +534,7 @@ class Room {
                     } else {
                         player.x = config.x;
                         player.y = config.y;
-                        while(player.checkmapcollision(this.location) || player.checkplayercollision(this.players) || player.checktowercollision(this.towers)) {
+                        while(player.checkmapcollision(this.hitboxes) || player.checkplayercollision(this.players) || player.checktowercollision(this.towers)) {
                             player.x = config.x + outstep;
                             player.y = config.y + outstep;
                             outstep++;
@@ -593,6 +578,7 @@ class Room {
                 return;
             }
             
+            if(!Number.isFinite(data.targetx) || !Number.isFinite(data.targety)) return;
             player.targetx = data.targetx;
             player.targety = data.targety;
 
@@ -777,6 +763,7 @@ class Room {
                 R: null,
                 T: null
             };
+            enemy.itemused = '';
 
             this.fxevents.push({type: 'kill' + (Math.floor(Math.random() * 3) + 1), sound: true});
         }
@@ -863,9 +850,40 @@ class Room {
         }
     }
 
+    ticksecond() { //1
+        if(this.state == 'BUYPHASE') {
+            this.clock--;
+
+            if(this.clock <= 0) {
+                this.startround();
+            }
+            return;
+        }
+
+        if(this.state == 'ROUND') {
+            this.clock++;
+
+            for(let id in this.players) {
+                const p = this.players[id];
+                if(p.isdead) continue;
+
+                const cfg = p.classesconfig[p.classid];
+                p.hp = Math.min(cfg.hp, p.hp + 2);
+                p.mana = Math.min(cfg.mana, p.mana + 4);
+                p.gold += 1;
+            }
+        }
+    }
+
     //roomloop
-    roomupdate(dt) {
-        this.ticksec++;
+    roomupdate(dt) { //1 / tickrate
+        if(this.state == 'ENDED') return;
+
+        this.dtsec += dt;
+        while(this.dtsec >= 1) {
+            this.dtsec -= 1;
+            this.ticksecond();
+        }
 
         this.towerautoattack();
 
@@ -874,7 +892,7 @@ class Room {
         data.towers = this.towers;
 
         for(let id in this.players) {
-            this.players[id].playerupdate(dt, this.location, this.players, this.towers); //update only every logic dynamic prorps
+            this.players[id].playerupdate(dt, this.hitboxes, this.players, this.towers); //update only every logic dynamic props
 
             const thistime = Date.now();
             let currentcooldown = 0;
@@ -888,18 +906,12 @@ class Room {
             const timePassed = thistime - this.players[id].lastattacktime;
 
             if(timePassed < activecooldown) {
-                currentcooldown = timePassed; 
+                currentcooldown = timePassed;
             } else {
                 currentcooldown = activecooldown;
                 if(this.players[id].animation == 'attack') {
                     this.players[id].animation = 'idle';
                 }
-            }
-
-            if(this.ticksec > 29 && this.state == 'ROUND' && this.players[id].isdead == false) {
-                this.players[id].hp = Math.min(this.players[id].classesconfig[this.players[id].classid].hp, this.players[id].hp + 2);
-                this.players[id].mana = Math.min(this.players[id].classesconfig[this.players[id].classid].mana, this.players[id].mana + 4);
-                this.players[id].gold += 1;
             }
 
             data.players[id] = {
@@ -935,10 +947,6 @@ class Room {
         this.sendtoroom('UPDATEROOM', data);
 
         this.fxevents = [];
-
-        if(this.ticksec > 29) { //секунда
-            this.ticksec = 0;
-        }
 
         //if(this.state == 'ROUND') {
             //проверка на победу в раунде
@@ -981,11 +989,13 @@ class Room {
             //проверка на победу в игре
             if(this.bluescore == 6) {
                 //победа синих
+                this.state = 'ENDED';
                 this.sendtoroom('GAMEWIN', {team: 'blue'});
                 return;
             }
             if(this.redscore == 6) {
                 //победа красных
+                this.state = 'ENDED';
                 this.sendtoroom('GAMEWIN', {team: 'red'});
                 return;
                 

@@ -9,6 +9,14 @@ export class Renderer {
         this.VIRTUAL_WIDTH = 1920;
         this.GRID_STEP = 64;
 
+        this.CLASSCOLORS = {
+            1: '#e74c3c',
+            2: '#2ecc71',
+            3: '#9b59b6',
+            4: '#f39c12',
+            5: '#3498db'
+        };
+
         this.animationtimer = 0;
         this.ANIMATION_SPEED = 0.15;
         this.TOTAL_FRAMES = 8;
@@ -113,19 +121,19 @@ export class Renderer {
         let renderqueue = [];
 
         this.main.location.forEach(obj => {
-            if (obj.type === 'sector') {
-                for (let tx = 0; tx < obj.w; tx++) {
-                    for (let ty = 0; ty < obj.h; ty++) {
+            if(obj.type === 'sector') {
+                for(let tx = 0; tx < obj.w; tx++) {
+                    for(let ty = 0; ty < obj.h; ty++) {
                         let flatX = (obj.x + tx) * this.GRID_STEP;
                         let flatY = (obj.y + ty) * this.GRID_STEP;
                         let isopos = this.flattoiso(flatX, flatY);
                         this.ctx.drawImage(this.textures[obj.texture], isopos.x - (this.TILE_WIDTH / 2), isopos.y, this.TILE_WIDTH, this.TILE_HEIGHT);
                     }
                 }
-            } else if (obj.type === 'tile') {
+            } else if(obj.type === 'tile') {
                 let isopos = this.flattoiso(obj.x * this.GRID_STEP, obj.y * this.GRID_STEP);
                 this.drawtile(obj, isopos);
-            } else if (obj.type === 'object') {
+            } else if(obj.type === 'object') {
                 renderqueue.push({
                     type: 'object',
                     texture: obj.texture,
@@ -150,6 +158,8 @@ export class Renderer {
             }
         }
 
+        this.drawclickmarker();
+
         renderqueue.sort((a, b) => a.y - b.y);
 
         renderqueue.forEach(obj => {
@@ -165,7 +175,7 @@ export class Renderer {
                 this.drawobject(obj, isopos);
             }
         });
-}
+    }
 
     flattoiso(flatX, flatY) {
         let offsetX = flatX - this.camera.x; //CAMERA
@@ -214,6 +224,16 @@ export class Renderer {
         const spriteSheet = this.textures[obj.texture]; //obj.texture
 
         if(spriteSheet && spriteSheet.complete) {
+            const classcolor = this.CLASSCOLORS[obj.classid] || '#ffffff';
+
+            this.ctx.save();
+            this.ctx.globalAlpha = 0.35;
+            this.ctx.beginPath();
+            this.ctx.ellipse(isopos.x, isopos.y + 40, 60, 22, 0, 0, Math.PI * 2);
+            this.ctx.fillStyle = classcolor;
+            this.ctx.fill();
+            this.ctx.restore();
+
             let currentFrameIndex = Math.floor(this.animationtimer % this.TOTAL_FRAMES);
             if(obj.animation == 'attack') {
                currentFrameIndex = Math.floor(this.animationtimer % 6);
@@ -235,9 +255,12 @@ export class Renderer {
             );
 
             this.ctx.font = 'bold 24px helvetica';
-            this.ctx.fillStyle = 'white';
+            this.ctx.fillStyle = classcolor;
+            this.ctx.strokeStyle = 'black';
+            this.ctx.lineWidth = 4;
             this.ctx.textAlign = 'center';
-            this.ctx.fillText(obj.nickname, isopos.x, isopos.y - 164); //nickname
+            this.ctx.strokeText(obj.nickname, isopos.x, isopos.y - 164);
+            this.ctx.fillText(obj.nickname, isopos.x, isopos.y - 164);
 
             const barwidth = 200;
             const barheight = 20;
@@ -281,5 +304,32 @@ export class Renderer {
         this.ctx.textAlign = 'center';
         this.ctx.font = 'bold 18px helvetica';
         this.ctx.fillText(obj.hp + ' / ' + obj.maxhp, isopos.x, isopos.y - 136);
+    }
+
+    drawclickmarker() {
+        const marker = this.main.clickmarker;
+        if(!marker || !marker.active) return;
+
+        const elapsed = performance.now() - marker.time;
+        const DURATION = 600;
+
+        if(elapsed > DURATION) {
+            marker.active = false;
+            return;
+        }
+
+        const isopos = this.flattoiso(marker.x, marker.y);
+        const progress = elapsed / DURATION;
+        const alpha = 1 - progress;
+        const radius = 40 + progress * 40;
+
+        this.ctx.save();
+        this.ctx.globalAlpha = alpha;
+        this.ctx.strokeStyle = '#04d65c';
+        this.ctx.lineWidth = 4;
+        this.ctx.beginPath();
+        this.ctx.ellipse(isopos.x, isopos.y, radius, radius * 0.5, 0, 0, Math.PI * 2);
+        this.ctx.stroke();
+        this.ctx.restore();
     }
 }
